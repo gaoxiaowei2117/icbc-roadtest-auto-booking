@@ -30,7 +30,6 @@
 
 ### 🎯 用户友好
 - **一键启动**：简单的启动脚本
-- **测试模式**：安全测试所有功能
 - **状态监控**：实时查看系统运行状态
 - **详细文档**：完整的使用指南
 
@@ -112,9 +111,6 @@ autoBooking:
 chmod +x start.sh
 ./start.sh
 
-# 或直接运行测试模式
-python3 test_road.py config.yml
-
 # 或直接运行生产模式
 python3 road.py config.yml
 ```
@@ -184,18 +180,9 @@ pushlocal:
 ```
 
 启动后选择模式：
-- `1` - 🧪 测试模式（推荐首次使用）
-- `2` - 🚀 生产模式（连接真实ICBC系统）
-- `3` - 📊 查看状态
-- `4` - 📋 查看日志
-
-### 🧪 测试模式（推荐）
-
-```bash
-python3 test_road.py config.yml
-```
-
-测试模式会模拟整个预约流程，验证所有配置是否正确，无需连接真实ICBC系统。
+- `1` - 🚀 生产模式（连接真实ICBC系统）
+- `2` - 📊 查看状态
+- `3` - 📋 查看日志
 
 ### 🚀 生产模式
 
@@ -334,26 +321,26 @@ python3 road.py config.yml
 
 1. **查看日志**：`tail -n 50 log_icbc_roadtest_checker.log`
 2. **检查状态**：`python3 status.py`
-3. **运行测试**：`python3 test_road.py config.yml`
-4. **检查配置**：确认config.yml所有必填项已正确填写
+3. **检查配置**：确认config.yml所有必填项已正确填写
 
 ## 📁 文件说明
 
 ```
 roadtest/
 ├── README.md                  # 本文件
+├── README.en.md               # 英文版
 ├── road.py                    # 主程序（生产模式）
-├── test_road.py              # 测试程序（模拟模式）
-├── status.py                 # 状态检查工具
-├── start.sh                  # 一键启动脚本
-├── config.yml                # 配置文件
-├── AUTO_BOOKING_GUIDE.md     # 详细使用指南
-├── PROJECT_SUMMARY.md        # 项目总结
+├── status.py                  # 状态检查工具
+├── start.sh                   # 一键启动脚本
+├── config.example.yml         # 配置模板（已提交到仓库）
+├── config.yml                 # 本地配置（已被 .gitignore 忽略）
+├── requirements.txt           # Python 依赖列表
+├── AUTO_BOOKING_GUIDE.md      # 详细使用指南
+├── PROJECT_SUMMARY.md         # 项目总结
 └── 运行时文件/
     ├── log_icbc_roadtest_checker.log  # 运行日志
     ├── booking_status.json            # 预约状态
-    ├── last_run.txt                   # 最后运行时间
-    └── test_booking_status.json       # 测试状态文件
+    └── last_run.txt                   # 最后运行时间
 ```
 
 ### 核心文件说明
@@ -361,8 +348,8 @@ roadtest/
 | 文件 | 说明 | 用途 |
 |------|------|------|
 | `road.py` | 主程序 | 连接真实ICBC系统进行自动预约 |
-| `test_road.py` | 测试程序 | 模拟所有功能，安全测试配置 |
-| `config.yml` | 配置文件 | 所有系统配置和账户信息 |
+| `config.example.yml` | 配置模板 | 复制为 `config.yml` 后再填入真实账户信息 |
+| `config.yml` | 本地配置 | 包含敏感字段，已 .gitignore，不会被提交 |
 | `status.py` | 状态工具 | 查看系统运行状态和历史 |
 | `start.sh` | 启动脚本 | 一键启动，选择运行模式 |
 
@@ -380,9 +367,8 @@ pip3 install requests pyyaml faker twilio pypushdeer
 
 # 运行系统
 ./start.sh                    # 一键启动
-python3 test_road.py config.yml    # 测试模式
-python3 road.py config.yml         # 生产模式
-python3 status.py                  # 查看状态
+python3 road.py config.yml    # 生产模式
+python3 status.py             # 查看状态
 
 # 监控系统
 tail -f log_icbc_roadtest_checker.log  # 实时日志
@@ -396,7 +382,7 @@ pkill -f "python3 road.py"     # 强制停止
 
 ## 🎯 使用流程
 
-1. **安装依赖** → 2. **配置Gmail** → 3. **编辑config.yml** → 4. **运行测试** → 5. **启动生产模式** → 6. **等待自动预约成功**
+1. **安装依赖** → 2. **配置Gmail** → 3. **编辑config.yml** → 4. **启动生产模式** → 5. **等待自动预约成功**
 
 ## 🎉 预约成功后
 
@@ -409,7 +395,7 @@ pkill -f "python3 road.py"     # 强制停止
 ## ⚠️ 重要提醒
 
 1. **Gmail安全**：务必使用应用密码，不要使用普通密码
-2. **配置检查**：首次使用请运行测试模式验证配置
+2. **保护本地配置**：`config.yml` 含敏感信息（驾照号、关键字、Gmail 应用密码），已被 `.gitignore`，切勿提交
 3. **网络环境**：确保能正常访问ICBC官网和Gmail
 4. **监控日志**：定期查看日志确保系统正常运行
 5. **预约确认**：预约成功后请登录ICBC官网确认
