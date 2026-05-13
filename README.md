@@ -2,6 +2,8 @@
 
 🚗 **智能化ICBC路考预约助手** - 自动监控、自动预约、自动退出的一站式解决方案
 
+> English version: [README.en.md](README.en.md)
+
 ## 📋 目录
 
 - [功能特性](#-功能特性)
