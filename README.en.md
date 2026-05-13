@@ -195,9 +195,9 @@ data_directory: "./log"               # where state and logs are stored
 ```
 
 It will prompt you to pick:
-- `2` — 🚀 Live mode (connect to the real ICBC system)
-- `3` — 📊 Show status
-- `4` — 📋 Show recent logs
+- `1` — 🚀 Live mode (connect to the real ICBC system)
+- `2` — 📊 Show status
+- `3` — 📋 Show recent logs
 
 ### Live mode
 

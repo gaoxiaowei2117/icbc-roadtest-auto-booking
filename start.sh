@@ -24,20 +24,14 @@ echo ""
 
 # Show menu
 echo "Choose mode:"
-echo "1. 🧪 Test Mode (simulate booking process)"
-echo "2. 🚀 Live Mode (connect to real ICBC system)"
-echo "3. 📊 Check Status"
-echo "4. 📋 View Recent Logs"
+echo "1. 🚀 Live Mode (connect to real ICBC system)"
+echo "2. 📊 Check Status"
+echo "3. 📋 View Recent Logs"
 echo ""
-read -p "Enter choice (1-4): " choice
+read -p "Enter choice (1-3): " choice
 
 case $choice in
     1)
-        echo ""
-        echo "🧪 Starting Test Mode..."
-        python3 test_road.py config.yml
-        ;;
-    2)
         echo ""
         echo "🚀 Starting Live Mode..."
         echo "⚠️  This will connect to real ICBC system!"
@@ -46,11 +40,11 @@ case $choice in
         sleep 2
         python3 road.py config.yml
         ;;
-    3)
+    2)
         echo ""
         python3 status.py
         ;;
-    4)
+    3)
         echo ""
         echo "📋 Recent Log Entries (last 20 lines):"
         echo "======================================"
