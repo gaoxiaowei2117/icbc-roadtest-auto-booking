@@ -23,15 +23,17 @@
 ## 📁 项目文件结构
 
 ```
-roadtest/
+icbc-roadtest-auto-booking/
 ├── road.py                    # 主程序（生产版本）
-├── test_road.py              # 测试版本（模拟ICBC API）
-├── config.yml                # 配置文件（已配置Gmail和自动预约）
-├── status.py                 # 状态检查工具
-├── start.sh                  # 启动脚本
-├── AUTO_BOOKING_GUIDE.md     # 详细使用指南
-├── PROJECT_SUMMARY.md        # 本文件
-├── icbc_roadtest_checker.py  # 原始文件（保留）
+├── status.py                  # 状态检查工具
+├── start.sh                   # 启动脚本
+├── config.example.yml         # 配置模板（已提交到仓库）
+├── config.yml                 # 本地配置（已被 .gitignore 忽略）
+├── requirements.txt           # Python 依赖列表
+├── README.md                  # 中文 README
+├── README.en.md               # 英文 README
+├── AUTO_BOOKING_GUIDE.md      # 详细使用指南
+├── PROJECT_SUMMARY.md         # 本文件
 └── 运行时文件/
     ├── log_icbc_roadtest_checker.log  # 日志文件
     ├── booking_status.json            # 预约状态
@@ -47,9 +49,6 @@ roadtest/
 
 ### 直接运行
 ```bash
-# 测试模式（推荐先运行）
-python3 test_road.py config.yml
-
 # 生产模式（连接真实ICBC系统）
 python3 road.py config.yml
 
@@ -72,27 +71,14 @@ python3 status.py
 ### 3. 用户体验
 - 丰富的状态提示和进度显示
 - 详细的错误信息和解决建议
-- 多种运行模式（测试/生产/状态查看）
+- 多种运行模式（生产/状态查看）
 
 ### 4. 可靠性保证
 - 网络超时处理
 - 连续失败自动停止
 - 状态持久化防止重复操作
 
-## 📊 测试结果
-
-### ✅ 测试版本运行结果
-```
-🧪 ICBC AUTO BOOKING SYSTEM - TEST MODE
-==================================================
-📧 Gmail Integration: ✅ Enabled
-🤖 Auto Booking: ✅ Enabled
-🎯 Selected appointment: 2025-08-10 (Sunday) at 10:00
-🎉 ✅ MOCK BOOKING SUCCESSFUL!
-==================================================
-🏁 TEST COMPLETED: booking_success
-✅ The auto booking system would work correctly!
-```
+## 📊 运行状态
 
 ### ✅ 生产版本状态
 - 程序能成功运行并持续监控
@@ -123,8 +109,8 @@ python3 status.py
 
 ## 🔮 使用建议
 
-1. **首次使用**：先运行测试模式确认配置正确
-2. **生产环境**：使用Gmail应用密码提高安全性
+1. **首次使用**：`cp config.example.yml config.yml` 后填入真实账户信息再运行
+2. **生产环境**：使用Gmail应用密码提高安全性，`config.yml` 已 `.gitignore`，切勿提交
 3. **监控运行**：定期查看status.py了解运行状态
 4. **日志管理**：定期清理日志文件避免过大
 
