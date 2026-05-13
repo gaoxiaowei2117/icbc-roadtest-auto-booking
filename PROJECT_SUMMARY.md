@@ -30,8 +30,8 @@ icbc-roadtest-auto-booking/
 ├── config.example.yml         # 配置模板（已提交到仓库）
 ├── config.yml                 # 本地配置（已被 .gitignore 忽略）
 ├── requirements.txt           # Python 依赖列表
-├── README.md                  # 中文 README
-├── README.en.md               # 英文 README
+├── README.md                  # 英文 README（默认）
+├── README.zh.md               # 中文 README
 ├── AUTO_BOOKING_GUIDE.md      # 详细使用指南
 ├── PROJECT_SUMMARY.md         # 本文件
 └── 运行时文件/
