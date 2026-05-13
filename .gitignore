@@ -1,0 +1,28 @@
+# Local config (use config.example.yml as template; copy to config.yml and fill in real values)
+config.yml
+
+# Runtime / state files
+booking_status.json
+processed_emails.txt
+pause_manual.txt
+last_run.txt
+origin_mail
+
+# Logs
+log/
+log_*.log
+log_icbc_roadtest_checker.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Large unrelated media
+Numb.mp3
+*.mp3

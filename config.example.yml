@@ -1,0 +1,82 @@
+icbc:
+  drvrLastName: "YOUR_LAST_NAME"
+  licenceNumber: "YOUR_LICENCE_NUMBER"
+  keyword: "YOUR_KEYWORD"
+  expactAfterDate: "2025-11-18"
+  expactBeforeDate: "2025-11-20"
+  expactTimeRange: "9:40-14:15"
+  examClass: "5"
+  posID: "274"
+  prfDaysOfWeek: "[0,1,2,3,4,5,6]"
+  prfPartsOfDay: "[0,1]"
+
+pushsms:
+  enable: false
+  accountSid: ""
+  authToken: ""
+  fromNumber: ""
+  toNumber: ""
+
+pushdeer:
+  enable: false
+  key: ""
+
+ntfy:
+  enable: false
+  topic: ""
+
+pushlocal:
+  enable: false
+
+pushsound:
+  enable: false  # Set to true to enable sound notifications
+  audio_file: ""  # Path to custom audio file (leave empty for system beep)
+
+# If an available appointment time is found, 
+# the test interval is paused by default
+pauseTimeMin: 5
+
+# Ignore the period from 23:55 to 00:05
+# If you need to schedule manually
+skip0Clock: false
+
+requestLimit:
+  enable: false
+  period: 20:15-23:15
+  interval: 5
+
+# Gmail configuration for verification code retrieval
+# IMPORTANT: Use Gmail App Password, not regular password!
+# To create app password: Google Account -> Security -> 2-Step Verification -> App passwords
+gmail:
+  enable: true  # Set to true to enable auto booking
+  verification_timeout_minutes: 1    # 查找验证码的时间限制(分钟)
+  check_interval_seconds: 10         # 检查间隔
+  use_idle: false                     # 是否启用IDLE功能
+  email: "your-email@gmail.com"  # Your Gmail address (e.g., yourname@gmail.com)
+  password: "xxxx xxxx xxxx xxxx"  # Gmail App Password (16 characters, e.g., "abcd efgh ijkl mnop")
+  imap_server: "imap.gmail.com"  # Don't change this
+  imap_port: 993  # Don't change this
+
+# Auto booking configuration
+autoBooking:
+  enable: true  # Set to true to enable automatic booking
+  timeSelectionStrategy: "earliest"  # Options: "earliest", "best_time_slot"
+  maxRetryAttempts: 3  # Number of booking attempts if failed
+  retryIntervalSeconds: 30  # Wait time between retry attempts
+  verificationCodeTimeoutMinutes: 10  # How long to wait for verification code email
+  bookingTimeWindow: "00:00-23:59"  # Only attempt booking during this time window
+  exitAfterSuccess: true  # Exit program after successful booking
+
+# Data directory configuration
+data_directory: "./log"  # Directory to store all application data files
+
+#logging:
+#  file_path: "/home/data/Downloads/roadtest/log_file.log"
+
+# Quick setup guide:
+# 1. Set gmail.enable: true
+# 2. Set gmail.email: your-gmail@gmail.com  
+# 3. Set gmail.password: your-16-char-app-password
+# 4. Set autoBooking.enable: true
+# 5. Run: python road.py config.yml

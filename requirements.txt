@@ -1,0 +1,7 @@
+requests
+PyYAML
+loguru
+faker
+twilio
+pypushdeer
+schedule
