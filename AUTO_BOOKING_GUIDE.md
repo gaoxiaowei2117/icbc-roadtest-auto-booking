@@ -22,7 +22,13 @@
 
 ### 2. 修改配置文件
 
-编辑 `config.yml`：
+`config.yml` 已在 `.gitignore` 中，仓库里只有模板 `config.example.yml`。首次使用时先复制一份：
+
+```bash
+cp config.example.yml config.yml
+```
+
+然后编辑 `config.yml`：
 
 ```yaml
 # 启用Gmail
@@ -99,7 +105,7 @@ autoBooking:
 ## 安全提醒
 
 1. **使用Gmail应用密码**: 不要使用普通Gmail密码
-2. **保护配置文件**: 确保config.yml文件权限安全
+2. **保护配置文件**: `config.yml` 包含驾照号、关键字、Gmail 应用密码，已被 `.gitignore` 排除，切勿手动加入 git 或上传到任何公开位置
 3. **监控日志**: 定期检查 `log_icbc_roadtest_checker.log`
 4. **备用方案**: 设置通知确保自动预约失败时能及时知道
 
