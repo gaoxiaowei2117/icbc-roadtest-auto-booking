@@ -4,18 +4,31 @@ echo "🚗 ICBC Auto Booking System"
 echo "=========================="
 echo ""
 
-# Check if config file exists
+# If config.yml is missing, offer to create it from the template and run the
+# configuration wizard.
 if [ ! -f "config.yml" ]; then
-    echo "❌ Error: config.yml not found!"
-    echo "Please make sure config.yml is in the current directory."
-    exit 1
+    echo "📋 config.yml not found."
+    if [ ! -f "config.example.yml" ]; then
+        echo "❌ Error: config.example.yml not found either!"
+        exit 1
+    fi
+    read -p "Create config.yml from config.example.yml and run the setup wizard now? (Y/n): " ans
+    case "$ans" in
+        n|N|no|No|NO)
+            echo "Aborted. Copy config.example.yml to config.yml manually and re-run."
+            exit 1
+            ;;
+        *)
+            python3 configure.py || exit 1
+            ;;
+    esac
 fi
 
-# Check if Python dependencies are available
+# Check Python dependencies
 python3 -c "import requests, yaml, faker, twilio, pypushdeer" 2>/dev/null
 if [ $? -ne 0 ]; then
     echo "❌ Error: Missing Python dependencies!"
-    echo "Please run: pip3 install requests pyyaml faker twilio pypushdeer"
+    echo "Please run: pip3 install -r requirements.txt"
     exit 1
 fi
 
@@ -27,8 +40,9 @@ echo "Choose mode:"
 echo "1. 🚀 Live Mode (connect to real ICBC system)"
 echo "2. 📊 Check Status"
 echo "3. 📋 View Recent Logs"
+echo "4. ⚙️  Configure (edit config.yml interactively)"
 echo ""
-read -p "Enter choice (1-3): " choice
+read -p "Enter choice (1-4): " choice
 
 case $choice in
     1)
@@ -53,6 +67,10 @@ case $choice in
         else
             echo "No log file found."
         fi
+        ;;
+    4)
+        echo ""
+        python3 configure.py
         ;;
     *)
         echo "Invalid choice. Exiting."
