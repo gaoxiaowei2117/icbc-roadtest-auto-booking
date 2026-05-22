@@ -40,7 +40,7 @@ class StaticServingTest(unittest.TestCase):
         status, ctype, body = _get(self.port, "/")
         self.assertEqual(status, 200)
         self.assertIn("text/html", ctype)
-        self.assertIn(b"webui stub", body)
+        self.assertIn(b"<!DOCTYPE html>", body)
 
     def test_style_and_app_served(self):
         status, ctype, _ = _get(self.port, "/style.css")

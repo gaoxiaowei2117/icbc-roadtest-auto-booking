@@ -1,1 +1,61 @@
-/* stub */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f4f5f7;
+  color: #1f2430;
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: #1f2430;
+  color: #fff;
+}
+header h1 { font-size: 17px; margin: 0; }
+.indicator { font-size: 13px; }
+.indicator.on { color: #3ad07a; }
+.indicator.off { color: #9aa0ad; }
+.tabs { display: flex; gap: 2px; padding: 10px 20px 0; background: #e9ebef; }
+.tab {
+  padding: 8px 20px; border: none; cursor: pointer;
+  background: #d7dae1; color: #6b7280;
+  border-radius: 6px 6px 0 0; font-size: 14px;
+}
+.tab.active { background: #f4f5f7; color: #1f2430; font-weight: 700; }
+.panel { padding: 20px; }
+.panel.hidden { display: none; }
+.card {
+  background: #fff; border: 1px solid #e0e2e8; border-radius: 8px;
+  padding: 16px 18px; margin-bottom: 16px;
+}
+.card h2 { font-size: 15px; margin: 0 0 12px; }
+.controls { margin-top: 12px; display: flex; align-items: center; gap: 10px; }
+button {
+  padding: 7px 16px; border: none; border-radius: 5px; cursor: pointer;
+  font-size: 13px; background: #2f7be2; color: #fff;
+}
+button#btn-stop { background: #e2492f; }
+.hint { font-size: 12px; color: #8a8f9a; margin: 10px 0 0; }
+#console {
+  background: #11141b; color: #9fe6b8; font-size: 12px;
+  font-family: ui-monospace, monospace; padding: 12px;
+  border-radius: 6px; height: 280px; overflow-y: auto; white-space: pre-wrap;
+}
+#status-body { font-size: 14px; line-height: 1.9; }
+#readiness { font-size: 13px; margin-bottom: 12px; }
+fieldset {
+  border: 1px solid #e0e2e8; border-radius: 6px;
+  margin: 0 0 14px; padding: 10px 14px;
+}
+legend { font-weight: 700; font-size: 13px; padding: 0 6px; }
+.field {
+  display: flex; align-items: center; gap: 10px; margin: 7px 0;
+}
+.field span { width: 200px; flex: none; font-size: 13px; color: #3a3f4a; }
+.field input[type=text] {
+  flex: 1; padding: 5px 8px; border: 1px solid #cfd2d9; border-radius: 4px;
+  font-size: 13px;
+}
+#save-msg { font-size: 13px; color: #3ad07a; }
