@@ -3,6 +3,8 @@
 🚗 **An automated ICBC road test booking assistant** — monitors slot availability, books a matching slot, and exits cleanly when done.
 
 > 中文版请见 [README.zh.md](README.zh.md)
+>
+> 💡 **Non-technical Windows user?** A step-by-step Chinese walkthrough is at [**WINDOWS_SETUP.zh.md**](WINDOWS_SETUP.zh.md).
 
 ## 📋 Table of Contents
 

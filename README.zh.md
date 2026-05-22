@@ -3,6 +3,8 @@
 🚗 **智能化ICBC路考预约助手** - 自动监控、自动预约、自动退出的一站式解决方案
 
 > English version: [README.md](README.md)
+>
+> 💡 **Windows 用户、没有编程基础?** 直接看图文版手册 → [**WINDOWS_SETUP.zh.md**](WINDOWS_SETUP.zh.md),跟着做 10 分钟就能跑起来。
 
 ## 📋 目录
 
