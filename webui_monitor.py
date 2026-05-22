@@ -16,6 +16,7 @@ class Monitor:
         self._lines = collections.deque(maxlen=500)
         self._lock = threading.Lock()
         self._reader = None
+        self._generation = 0
 
     def is_running(self):
         return self._proc is not None and self._proc.poll() is None
@@ -25,31 +26,36 @@ class Monitor:
 
     def start(self):
         """启动子进程。已在运行则返回 False。"""
-        if self.is_running():
-            return False
         with self._lock:
+            if self.is_running():
+                return False
             self._lines.clear()
-        self._proc = subprocess.Popen(
-            self._command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-        )
-        self._reader = threading.Thread(target=self._read_output, daemon=True)
+            self._generation += 1
+            gen = self._generation
+            self._proc = subprocess.Popen(
+                self._command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+            )
+        self._reader = threading.Thread(
+            target=self._read_output, args=(gen,), daemon=True)
         self._reader.start()
         return True
 
     def stop(self):
         """终止子进程。未运行则返回 False。"""
-        if not self.is_running():
-            return False
-        self._proc.terminate()
+        with self._lock:
+            if not self.is_running():
+                return False
+            proc = self._proc
+        proc.terminate()
         try:
-            self._proc.wait(timeout=5)
+            proc.wait(timeout=5)
         except subprocess.TimeoutExpired:
-            self._proc.kill()
-            self._proc.wait(timeout=5)
+            proc.kill()
+            proc.wait(timeout=5)
         return True
 
     def console(self):
@@ -57,9 +63,10 @@ class Monitor:
         with self._lock:
             return list(self._lines)
 
-    def _read_output(self):
+    def _read_output(self, gen):
         proc = self._proc
         for line in proc.stdout:
             with self._lock:
-                self._lines.append(line.rstrip("\n"))
+                if self._generation == gen:
+                    self._lines.append(line.rstrip("\n"))
         proc.stdout.close()
