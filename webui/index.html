@@ -13,8 +13,8 @@
   </header>
 
   <nav class="tabs">
-    <button class="tab active" data-tab="monitor">监控</button>
-    <button class="tab" data-tab="config">配置</button>
+    <button type="button" class="tab active" data-tab="monitor">监控</button>
+    <button type="button" class="tab" data-tab="config">配置</button>
   </nav>
 
   <section id="tab-monitor" class="panel">
@@ -22,8 +22,8 @@
       <h2>状态</h2>
       <div id="status-body">加载中…</div>
       <div class="controls">
-        <button id="btn-start">启动监控</button>
-        <button id="btn-stop">停止监控</button>
+        <button type="button" id="btn-start">启动监控</button>
+        <button type="button" id="btn-stop">停止监控</button>
       </div>
       <p class="hint">关闭面板程序会同时停止监控(仅关闭浏览器标签页不影响,服务仍在后台运行)。</p>
     </div>
@@ -39,7 +39,7 @@
       <div id="readiness"></div>
       <form id="config-form"></form>
       <div class="controls">
-        <button id="btn-save">保存配置</button>
+        <button type="button" id="btn-save">保存配置</button>
         <span id="save-msg"></span>
       </div>
     </div>
