@@ -1,3 +1,4 @@
+import json
 import shutil
 import tempfile
 import unittest
@@ -74,6 +75,45 @@ class WriteConfigTest(unittest.TestCase):
         with open(self.cfg, encoding="utf-8") as f:
             data = yaml.safe_load(f)
         self.assertEqual(data["icbc"]["keyword"], "newkey")
+
+
+class ReadStatusTest(unittest.TestCase):
+    def setUp(self):
+        self._orig = configure.CONFIG_PATH
+        self.tmp = Path(tempfile.mkdtemp())
+        self.cfg = self.tmp / "config.yml"
+        shutil.copy("config.example.yml", self.cfg)
+        configure.CONFIG_PATH = self.cfg
+        # data_directory 指向临时目录里的 datadir
+        self.datadir = self.tmp / "datadir"
+        self.datadir.mkdir()
+        lines = configure.read_lines()
+        configure.set_value(lines, None, "data_directory", str(self.datadir))
+        configure.write_lines(lines)
+
+    def tearDown(self):
+        configure.CONFIG_PATH = self._orig
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_read_status_empty_when_no_files(self):
+        status = webui_state.read_status()
+        self.assertIsNone(status["booking"])
+        self.assertIsNone(status["last_run"])
+        self.assertIsNone(status["log_summary"])
+
+    def test_read_status_reads_booking_and_log(self):
+        (self.datadir / "booking_status.json").write_text(
+            json.dumps({"status": "booked"}), encoding="utf-8")
+        (self.datadir / "last_run.txt").write_text(
+            "2026-05-21 10:00:00\n", encoding="utf-8")
+        (self.datadir / "log_icbc_roadtest_checker.log").write_text(
+            "x - ERROR - boom\nx - INFO - No appointments available\n",
+            encoding="utf-8")
+        status = webui_state.read_status()
+        self.assertEqual(status["booking"]["status"], "booked")
+        self.assertEqual(status["last_run"], "2026-05-21 10:00:00")
+        self.assertEqual(status["log_summary"]["errors"], 1)
+        self.assertEqual(status["log_summary"]["no_appointments"], 1)
 
 
 if __name__ == "__main__":

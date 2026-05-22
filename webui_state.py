@@ -112,3 +112,51 @@ def write_config(changes):
     if applied:
         configure.write_lines(lines)
     return applied
+
+
+def _data_dir():
+    lines = configure.read_lines()
+    return configure.get_value(lines, None, "data_directory") or "./data"
+
+
+def _read_booking(data_dir):
+    path = os.path.join(data_dir, "booking_status.json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def _read_last_run(data_dir):
+    path = os.path.join(data_dir, "last_run.txt")
+    try:
+        with open(path, encoding="utf-8") as f:
+            return f.readline().strip()
+    except OSError:
+        return None
+
+
+def _read_log_summary(data_dir):
+    path = os.path.join(data_dir, "log_icbc_roadtest_checker.log")
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            recent = f.readlines()[-20:]
+    except OSError:
+        return None
+    return {
+        "recent_entries": len(recent),
+        "errors": sum("ERROR" in line for line in recent),
+        "warnings": sum("WARNING" in line for line in recent),
+        "no_appointments": sum("No appointments available" in line for line in recent),
+    }
+
+
+def read_status():
+    """返回 {'booking': ..., 'last_run': ..., 'log_summary': ...}。"""
+    data_dir = _data_dir()
+    return {
+        "booking": _read_booking(data_dir),
+        "last_run": _read_last_run(data_dir),
+        "log_summary": _read_log_summary(data_dir),
+    }
