@@ -73,20 +73,26 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         path = urlparse(self.path).path
-        if path in STATIC_FILES:
-            self._send_static(path)
-        elif path == "/api/config":
-            self._send_json(webui_state.read_config())
-        else:
-            self._send_json({"error": "not found"}, 404)
+        try:
+            if path in STATIC_FILES:
+                self._send_static(path)
+            elif path == "/api/config":
+                self._send_json(webui_state.read_config())
+            else:
+                self._send_json({"error": "not found"}, 404)
+        except Exception as exc:
+            self._send_json({"error": str(exc)}, 500)
 
     def do_POST(self):
         path = urlparse(self.path).path
-        if path == "/api/config":
-            applied = webui_state.write_config(self._read_json_body())
-            self._send_json({"applied": applied})
-        else:
-            self._send_json({"error": "not found"}, 404)
+        try:
+            if path == "/api/config":
+                applied = webui_state.write_config(self._read_json_body())
+                self._send_json({"applied": applied})
+            else:
+                self._send_json({"error": "not found"}, 404)
+        except Exception as exc:
+            self._send_json({"error": str(exc)}, 500)
 
 
 def main():
