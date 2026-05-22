@@ -85,6 +85,65 @@ FIELD_OPTIONS = {
     ],
 }
 
+# English variants for the UI — the frontend toggle picks zh or en.
+FIELD_LABELS_EN = {
+    "icbc.drvrLastName": "Last name",
+    "icbc.licenceNumber": "Licence number",
+    "icbc.keyword": "ICBC keyword / password",
+    "icbc.examClass": "Exam class",
+    "icbc.posID": "Test centre",
+    "icbc.expactAfterDate": "Earliest date",
+    "icbc.expactBeforeDate": "Latest date",
+    "icbc.expactTimeRange": "Time range",
+    "icbc.prfDaysOfWeek": "Preferred days",
+    "icbc.prfPartsOfDay": "Preferred time of day",
+    "gmail.enable": "Enable Gmail",
+    "gmail.email": "Gmail address",
+    "gmail.password": "Gmail app password",
+    "autoBooking.enable": "Enable auto-booking",
+    "autoBooking.timeSelectionStrategy": "Time selection strategy",
+    "autoBooking.exitAfterSuccess": "Exit after success",
+    "autoBooking.bookingTimeWindow": "Booking time window",
+    "pushdeer.enable": "Enable PushDeer",
+    "pushdeer.key": "PushDeer key",
+    "ntfy.enable": "Enable ntfy",
+    "ntfy.topic": "ntfy topic",
+    "pushsms.enable": "Enable SMS (Twilio)",
+    "pushsms.accountSid": "Twilio Account SID",
+    "pushsms.authToken": "Twilio Auth Token",
+    "pushsms.fromNumber": "From number",
+    "pushsms.toNumber": "To number",
+    "pushsound.enable": "Enable sound notification",
+    "pushlocal.enable": "Enable desktop notification",
+    "_root.pauseTimeMin": "Pause minutes after a hit",
+    "_root.skip0Clock": "Skip 23:55-00:05",
+    "_root.data_directory": "Data directory",
+    "requestLimit.enable": "Enable request rate limit",
+    "requestLimit.period": "Limit period",
+    "requestLimit.interval": "Limit interval (seconds)",
+}
+
+GROUP_LABELS_EN = {
+    "ICBC 账户": "ICBC Account",
+    "日期 / 时间": "Date / Time",
+    "Gmail": "Gmail",
+    "自动预约": "Auto-Booking",
+    "通知": "Notifications",
+    "高级": "Advanced",
+}
+
+# 多选/单选字段的英文选项标签:value -> en label。
+# 只覆盖需要翻译的字段(posID 的标签来自 CSV,本来就是英文)。
+FIELD_OPTION_LABELS_EN = {
+    "icbc.prfDaysOfWeek": {
+        "0": "Sun", "1": "Mon", "2": "Tue", "3": "Wed",
+        "4": "Thu", "5": "Fri", "6": "Sat",
+    },
+    "icbc.prfPartsOfDay": {
+        "0": "AM", "1": "PM",
+    },
+}
+
 
 def _parse_bracket_list(raw):
     """把 "[0,1,2]" 这种字符串解析成 ['0','1','2']。"""
@@ -126,12 +185,23 @@ def read_config():
             "section": section or "_root",
             "key": key,
             "label": label,
+            "label_en": FIELD_LABELS_EN.get(dotted, label),
             "type": ftype,
             "group": group,
+            "group_en": GROUP_LABELS_EN.get(group, group),
             "value": _coerce_out(raw, ftype),
         }
         if ftype in ("multi_select", "single_select"):
-            field["options"] = FIELD_OPTIONS.get(dotted, [])
+            opts = FIELD_OPTIONS.get(dotted, [])
+            field["options"] = opts
+            en_map = FIELD_OPTION_LABELS_EN.get(dotted)
+            if en_map:
+                field["options_en"] = [
+                    [val, en_map.get(val, lbl)] for val, lbl in opts
+                ]
+            else:
+                # 无单独英文映射(如 posID,CSV 标签本来就是英文)→ 与 options 一致
+                field["options_en"] = opts
         fields.append(field)
     return {"fields": fields, "readiness": configure.readiness_issues(lines)}
 

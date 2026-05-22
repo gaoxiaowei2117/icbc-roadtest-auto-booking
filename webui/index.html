@@ -8,38 +8,41 @@
 </head>
 <body>
   <header>
-    <h1>🚗 ICBC 自动预约控制面板</h1>
-    <span id="monitor-indicator" class="indicator off">● 已停止</span>
+    <h1 data-i18n="title">🚗 ICBC 自动预约控制面板</h1>
+    <div class="header-right">
+      <button type="button" id="lang-toggle" class="lang-toggle">EN</button>
+      <span id="monitor-indicator" class="indicator off">● 已停止</span>
+    </div>
   </header>
 
   <nav class="tabs">
-    <button type="button" class="tab active" data-tab="monitor">监控</button>
-    <button type="button" class="tab" data-tab="config">配置</button>
+    <button type="button" class="tab active" data-tab="monitor" data-i18n="tab_monitor">监控</button>
+    <button type="button" class="tab" data-tab="config" data-i18n="tab_config">配置</button>
   </nav>
 
   <section id="tab-monitor" class="panel">
     <div class="card">
-      <h2>状态</h2>
+      <h2 data-i18n="card_status">状态</h2>
       <div id="status-body">加载中…</div>
       <div class="controls">
-        <button type="button" id="btn-start">启动监控</button>
-        <button type="button" id="btn-stop">停止监控</button>
+        <button type="button" id="btn-start" data-i18n="btn_start">启动监控</button>
+        <button type="button" id="btn-stop" data-i18n="btn_stop">停止监控</button>
       </div>
-      <p class="hint">关闭面板程序会同时停止监控(仅关闭浏览器标签页不影响,服务仍在后台运行)。</p>
+      <p class="hint" data-i18n="hint_close">关闭面板程序会同时停止监控(仅关闭浏览器标签页不影响,服务仍在后台运行)。</p>
     </div>
     <div class="card">
-      <h2>实时输出</h2>
+      <h2 data-i18n="card_console">实时输出</h2>
       <pre id="console">—</pre>
     </div>
   </section>
 
   <section id="tab-config" class="panel hidden">
     <div class="card">
-      <h2>配置</h2>
+      <h2 data-i18n="card_config">配置</h2>
       <div id="readiness"></div>
       <form id="config-form"></form>
       <div class="controls">
-        <button type="button" id="btn-save">保存配置</button>
+        <button type="button" id="btn-save" data-i18n="btn_save">保存配置</button>
         <span id="save-msg"></span>
       </div>
     </div>

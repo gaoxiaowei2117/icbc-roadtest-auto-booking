@@ -14,6 +14,15 @@ header {
   color: #fff;
 }
 header h1 { font-size: 17px; margin: 0; }
+.header-right { display: flex; align-items: center; gap: 14px; }
+.lang-toggle {
+  padding: 3px 10px; min-width: 32px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff; border-radius: 4px;
+  cursor: pointer; font-size: 12px; font-weight: 600;
+}
+.lang-toggle:hover { background: rgba(255,255,255,0.22); }
 .indicator { font-size: 13px; }
 .indicator.on { color: #3ad07a; }
 .indicator.off { color: #9aa0ad; }

@@ -241,5 +241,54 @@ class PosIdSingleSelectTest(unittest.TestCase):
         self.assertEqual(by_id["icbc.posID"]["value"], "11")
 
 
+class EnglishLabelsTest(unittest.TestCase):
+    """每个字段同时返回中英两份标签;分组名和多/单选选项也一样。"""
+
+    def setUp(self):
+        self._orig = configure.CONFIG_PATH
+        self.tmp = Path(tempfile.mkdtemp())
+        self.cfg = self.tmp / "config.yml"
+        shutil.copy("config.example.yml", self.cfg)
+        configure.CONFIG_PATH = self.cfg
+
+    def tearDown(self):
+        configure.CONFIG_PATH = self._orig
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_every_field_has_label_en_and_group_en(self):
+        for f in webui_state.read_config()["fields"]:
+            self.assertIn("label_en", f, f"field {f['id']} missing label_en")
+            self.assertTrue(f["label_en"], f"field {f['id']} has empty label_en")
+            self.assertIn("group_en", f, f"field {f['id']} missing group_en")
+            self.assertTrue(f["group_en"], f"field {f['id']} has empty group_en")
+
+    def test_specific_field_translations(self):
+        by_id = {f["id"]: f for f in webui_state.read_config()["fields"]}
+        self.assertEqual(by_id["icbc.drvrLastName"]["label_en"], "Last name")
+        self.assertEqual(by_id["icbc.posID"]["label_en"], "Test centre")
+        self.assertEqual(by_id["icbc.posID"]["group_en"], "ICBC Account")
+        self.assertEqual(by_id["icbc.expactAfterDate"]["group_en"], "Date / Time")
+        self.assertEqual(by_id["gmail.enable"]["label_en"], "Enable Gmail")
+        self.assertEqual(by_id["pushsms.enable"]["group_en"], "Notifications")
+        self.assertEqual(by_id["_root.pauseTimeMin"]["group_en"], "Advanced")
+
+    def test_multi_select_options_en_translated(self):
+        by_id = {f["id"]: f for f in webui_state.read_config()["fields"]}
+        days = by_id["icbc.prfDaysOfWeek"]
+        self.assertIn("options_en", days)
+        self.assertEqual(len(days["options_en"]), 7)
+        self.assertEqual(days["options_en"][0], ["0", "Sun"])
+        self.assertEqual(days["options_en"][6], ["6", "Sat"])
+        parts = by_id["icbc.prfPartsOfDay"]
+        self.assertEqual(parts["options_en"][0], ["0", "AM"])
+        self.assertEqual(parts["options_en"][1], ["1", "PM"])
+
+    def test_posid_options_en_falls_back_to_options(self):
+        # posID 没有单独的英文映射,options_en 应等于 options(CSV 原文已是英文)
+        by_id = {f["id"]: f for f in webui_state.read_config()["fields"]}
+        pos = by_id["icbc.posID"]
+        self.assertEqual(pos["options_en"], pos["options"])
+
+
 if __name__ == "__main__":
     unittest.main()
