@@ -8,6 +8,7 @@ import http.server
 import json
 import os
 import socket
+from urllib.parse import urlparse
 
 WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "webui")
 
@@ -59,8 +60,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
-        if self.path in STATIC_FILES:
-            self._send_static(self.path)
+        path = urlparse(self.path).path
+        if path in STATIC_FILES:
+            self._send_static(path)
         else:
             self._send_json({"error": "not found"}, 404)
 

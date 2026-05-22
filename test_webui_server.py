@@ -1,6 +1,7 @@
 import json
 import threading
 import unittest
+import urllib.error
 import urllib.request
 from http.server import ThreadingHTTPServer
 
@@ -26,6 +27,7 @@ class StaticServingTest(unittest.TestCase):
 
     def tearDown(self):
         self.server.shutdown()
+        self.server.server_close()
 
     def test_root_serves_index_html(self):
         status, ctype, body = _get(self.port, "/")
