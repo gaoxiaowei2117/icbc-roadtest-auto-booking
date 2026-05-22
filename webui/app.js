@@ -130,6 +130,31 @@ function renderField(f) {
     return row;
   }
 
+  if (f.type === "single_select") {
+    const sel = document.createElement("select");
+    sel.dataset.id = f.id;
+    sel.dataset.type = f.type;
+    const current = f.value == null ? "" : String(f.value);
+    const known = new Set((f.options || []).map(([val]) => String(val)));
+    // 如果当前值不在选项里(老配置或自定义值),前面塞一条占位选项让它仍能保留
+    if (current && !known.has(current)) {
+      const opt = document.createElement("option");
+      opt.value = current;
+      opt.textContent = `(当前: ${current} — 不在列表)`;
+      opt.selected = true;
+      sel.appendChild(opt);
+    }
+    (f.options || []).forEach(([val, lbl]) => {
+      const opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = lbl;
+      if (String(val) === current) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    row.appendChild(sel);
+    return row;
+  }
+
   if (f.type === "time_range") {
     const wrap = document.createElement("div");
     wrap.className = "time-range";
@@ -177,10 +202,12 @@ function renderField(f) {
 $("#btn-save").addEventListener("click", async () => {
   try {
     const changes = {};
-    // 单值字段(text / date / int / bool):dataset.id 直接挂在 input 上
-    document.querySelectorAll("#config-form input[data-id]").forEach((i) => {
-      changes[i.dataset.id] =
-        i.dataset.type === "bool" ? i.checked : i.value;
+    // 单值字段(text / date / int / bool / single_select):dataset.id 挂在控件上
+    document.querySelectorAll(
+      "#config-form input[data-id], #config-form select[data-id]"
+    ).forEach((el) => {
+      changes[el.dataset.id] =
+        el.dataset.type === "bool" ? el.checked : el.value;
     });
     // 多选字段:dataset.id 挂在容器上,值收集勾选项
     document.querySelectorAll("#config-form .multi-select").forEach((g) => {

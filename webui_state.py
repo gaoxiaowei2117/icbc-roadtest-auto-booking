@@ -4,19 +4,20 @@ Stdlib-only. Bridges to configure.py for config.yml read/write so the
 config form works even before runtime dependencies are installed.
 """
 
+import csv
 import json
 import os
 
 import configure
 
 # (section, key, label, type, group) — section None 表示顶层 key
-# type: text | bool | date | int | time_range | multi_select
+# type: text | bool | date | int | time_range | multi_select | single_select
 CONFIG_FIELDS = [
     ("icbc", "drvrLastName", "姓氏", "text", "ICBC 账户"),
     ("icbc", "licenceNumber", "驾照号", "text", "ICBC 账户"),
     ("icbc", "keyword", "ICBC 关键字/密码", "text", "ICBC 账户"),
     ("icbc", "examClass", "考试类别", "text", "ICBC 账户"),
-    ("icbc", "posID", "考点 ID", "text", "ICBC 账户"),
+    ("icbc", "posID", "考点", "single_select", "ICBC 账户"),
     ("icbc", "expactAfterDate", "最早日期", "date", "日期 / 时间"),
     ("icbc", "expactBeforeDate", "最晚日期", "date", "日期 / 时间"),
     ("icbc", "expactTimeRange", "时间范围", "time_range", "日期 / 时间"),
@@ -48,10 +49,33 @@ CONFIG_FIELDS = [
     ("requestLimit", "interval", "限流间隔(秒)", "int", "高级"),
 ]
 
-# 多选字段的可选项:dotted_id -> [[value, label], ...]
+def _load_pos_options():
+    """从 icbc_pos_list.csv 读出考点列表,返回 [[posID, 'name — posID'], ...]。
+
+    用 __file__ 解析路径,保证不论从哪个 cwd 启动都能找到 CSV。
+    文件缺失时返回空列表(下拉就是空的,但不会崩溃)。
+    """
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "icbc_pos_list.csv")
+    opts = []
+    try:
+        with open(path, encoding="utf-8", newline="") as f:
+            reader = csv.reader(f)
+            next(reader, None)  # 跳过表头
+            for row in reader:
+                if len(row) >= 2 and row[1].strip():
+                    name, pid = row[0].strip(), row[1].strip()
+                    opts.append([pid, f"{name} — {pid}"])
+    except OSError:
+        pass
+    return opts
+
+
+# 多选 / 单选字段的可选项:dotted_id -> [[value, label], ...]
 # value 用字符串以便 JSON 传输和 YAML 写回一致;用 list 而非 tuple
 # 是为了让 Python 端的形状与序列化到前端的 JSON 数组一致。
 FIELD_OPTIONS = {
+    "icbc.posID": _load_pos_options(),
     "icbc.prfDaysOfWeek": [
         ["0", "日"], ["1", "一"], ["2", "二"], ["3", "三"],
         ["4", "四"], ["5", "五"], ["6", "六"],
@@ -106,7 +130,7 @@ def read_config():
             "group": group,
             "value": _coerce_out(raw, ftype),
         }
-        if ftype == "multi_select":
+        if ftype in ("multi_select", "single_select"):
             field["options"] = FIELD_OPTIONS.get(dotted, [])
         fields.append(field)
     return {"fields": fields, "readiness": configure.readiness_issues(lines)}

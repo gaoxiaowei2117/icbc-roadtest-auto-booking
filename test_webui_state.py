@@ -195,5 +195,51 @@ class PickerFieldTypesTest(unittest.TestCase):
         self.assertEqual(by_id["icbc.expactTimeRange"]["value"], "10:00-12:30")
 
 
+class PosIdSingleSelectTest(unittest.TestCase):
+    """posID 字段从文本框改成下拉选择,选项来自 icbc_pos_list.csv。"""
+
+    def setUp(self):
+        self._orig = configure.CONFIG_PATH
+        self.tmp = Path(tempfile.mkdtemp())
+        self.cfg = self.tmp / "config.yml"
+        shutil.copy("config.example.yml", self.cfg)
+        configure.CONFIG_PATH = self.cfg
+
+    def tearDown(self):
+        configure.CONFIG_PATH = self._orig
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_posid_field_is_single_select_with_options(self):
+        by_id = {f["id"]: f for f in webui_state.read_config()["fields"]}
+        pos = by_id["icbc.posID"]
+        self.assertEqual(pos["type"], "single_select")
+        self.assertIn("options", pos)
+        self.assertGreater(len(pos["options"]), 50,
+                           "CSV should yield well over 50 ICBC test centres")
+        # 每条选项形如 [pid, "name — pid"]
+        for entry in pos["options"]:
+            self.assertEqual(len(entry), 2)
+            self.assertTrue(entry[1].endswith(f" — {entry[0]}"),
+                            f"label should end with ' — {entry[0]}', got: {entry[1]}")
+
+    def test_posid_options_contain_known_burnaby_centre(self):
+        by_id = {f["id"]: f for f in webui_state.read_config()["fields"]}
+        opts = {pid: lbl for pid, lbl in by_id["icbc.posID"]["options"]}
+        # CSV 里 274 是 Burnaby claim centre (Wayburne Drive)
+        self.assertIn("274", opts)
+        self.assertIn("Burnaby", opts["274"])
+        self.assertTrue(opts["274"].endswith(" — 274"))
+
+    def test_posid_value_round_trip(self):
+        # 模板默认 posID 是 274
+        by_id = {f["id"]: f for f in webui_state.read_config()["fields"]}
+        self.assertEqual(by_id["icbc.posID"]["value"], "274")
+        # 改成 Surrey driver licensing = 11
+        applied = webui_state.write_config({"icbc.posID": "11"})
+        self.assertEqual(applied, ["icbc.posID"])
+        by_id = {f["id"]: f for f in webui_state.read_config()["fields"]}
+        self.assertEqual(by_id["icbc.posID"]["value"], "11")
+
+
 if __name__ == "__main__":
     unittest.main()

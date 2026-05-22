@@ -55,9 +55,10 @@ legend { font-weight: 700; font-size: 13px; padding: 0 6px; }
 }
 .field > span { width: 200px; flex: none; font-size: 13px; color: #3a3f4a; }
 .field > input[type=text],
-.field > input[type=date] {
+.field > input[type=date],
+.field > select {
   flex: 1; padding: 5px 8px; border: 1px solid #cfd2d9; border-radius: 4px;
-  font-size: 13px;
+  font-size: 13px; background: #fff;
 }
 .multi-select {
   flex: 1; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
