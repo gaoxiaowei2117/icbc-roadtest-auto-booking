@@ -24,17 +24,6 @@ if [ ! -f "config.yml" ]; then
     esac
 fi
 
-# Check Python dependencies
-python3 -c "import requests, yaml, faker, twilio, pypushdeer" 2>/dev/null
-if [ $? -ne 0 ]; then
-    echo "❌ Error: Missing Python dependencies!"
-    echo "Please run: pip3 install -r requirements.txt"
-    exit 1
-fi
-
-echo "✅ Configuration and dependencies OK"
-echo ""
-
 # Show menu
 echo "Choose mode:"
 echo "1. 🚀 Live Mode (connect to real ICBC system)"
@@ -48,6 +37,13 @@ read -p "Enter choice (1-5): " choice
 case $choice in
     1)
         echo ""
+        # road.py needs the third-party dependencies; the other options don't.
+        python3 -c "import requests, yaml, faker, twilio, pypushdeer" 2>/dev/null
+        if [ $? -ne 0 ]; then
+            echo "❌ Missing Python dependencies for live mode."
+            echo "Please run: pip3 install -r requirements.txt"
+            exit 1
+        fi
         echo "🚀 Starting Live Mode..."
         echo "⚠️  This will connect to real ICBC system!"
         echo "Press Ctrl+C to stop the program"
