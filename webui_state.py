@@ -99,12 +99,16 @@ def write_config(changes):
             continue
         section, key, ftype = by_id[cid]
         if ftype == "bool":
-            new_value = bool(value)
+            if isinstance(value, bool):
+                new_value = value
+            else:
+                new_value = str(value).strip().lower() in ("true", "yes", "1")
         elif ftype == "int":
             new_value = str(value)
         else:
             new_value = "" if value is None else str(value)
         if configure.set_value(lines, section, key, new_value):
             applied.append(cid)
-    configure.write_lines(lines)
+    if applied:
+        configure.write_lines(lines)
     return applied
