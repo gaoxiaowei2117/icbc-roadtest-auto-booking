@@ -38,15 +38,24 @@ function stopPolling() {
   pollTimer = null;
 }
 async function refreshStatus() {
-  const s = await getJSON("/api/status");
-  const ind = $("#monitor-indicator");
-  ind.textContent = s.monitor_running ? "● 监控中" : "● 已停止";
-  ind.className = "indicator " + (s.monitor_running ? "on" : "off");
-  $("#status-body").innerHTML = renderStatus(s);
-  const c = await getJSON("/api/console");
-  const pre = $("#console");
-  pre.textContent = c.lines.length ? c.lines.join("\n") : "—";
-  pre.scrollTop = pre.scrollHeight;
+  try {
+    const s = await getJSON("/api/status");
+    const ind = $("#monitor-indicator");
+    ind.textContent = s.monitor_running ? "● 监控中" : "● 已停止";
+    ind.className = "indicator " + (s.monitor_running ? "on" : "off");
+    $("#status-body").innerHTML = renderStatus(s);
+    const c = await getJSON("/api/console");
+    const pre = $("#console");
+    pre.textContent = c.lines.length ? c.lines.join("\n") : "—";
+    pre.scrollTop = pre.scrollHeight;
+  } catch (err) {
+    const ind = $("#monitor-indicator");
+    ind.textContent = "● 连接失败";
+    ind.className = "indicator off";
+  }
+}
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 function renderStatus(s) {
   const booking = s.booking ? (s.booking.status || "unknown") : "未预约";
@@ -54,7 +63,7 @@ function renderStatus(s) {
   const log = ls
     ? `${ls.errors} 错误 / ${ls.warnings} 警告 / ${ls.no_appointments} 次无名额`
     : "无日志";
-  return `预约状态:${booking}<br>上次运行:${s.last_run || "从未"}<br>最近日志:${log}`;
+  return `预约状态:${esc(booking)}<br>上次运行:${esc(s.last_run || "从未")}<br>最近日志:${log}`;
 }
 
 // ── 启动 / 停止 ──
@@ -69,25 +78,29 @@ $("#btn-stop").addEventListener("click", async () => {
 
 // ── 配置表单 ──
 async function loadConfig() {
-  const cfg = await getJSON("/api/config");
-  const form = $("#config-form");
-  form.innerHTML = "";
-  const groups = {};
-  cfg.fields.forEach((f) => {
-    (groups[f.group] = groups[f.group] || []).push(f);
-  });
-  Object.keys(groups).forEach((g) => {
-    const fs = document.createElement("fieldset");
-    const legend = document.createElement("legend");
-    legend.textContent = g;
-    fs.appendChild(legend);
-    groups[g].forEach((f) => fs.appendChild(renderField(f)));
-    form.appendChild(fs);
-  });
-  const r = $("#readiness");
-  r.textContent = cfg.readiness.length
-    ? "⚠️ 还需填写:" + cfg.readiness.join("、")
-    : "✅ 必填项已完成";
+  try {
+    const cfg = await getJSON("/api/config");
+    const form = $("#config-form");
+    form.innerHTML = "";
+    const groups = {};
+    cfg.fields.forEach((f) => {
+      (groups[f.group] = groups[f.group] || []).push(f);
+    });
+    Object.keys(groups).forEach((g) => {
+      const fs = document.createElement("fieldset");
+      const legend = document.createElement("legend");
+      legend.textContent = g;
+      fs.appendChild(legend);
+      groups[g].forEach((f) => fs.appendChild(renderField(f)));
+      form.appendChild(fs);
+    });
+    const r = $("#readiness");
+    r.textContent = cfg.readiness.length
+      ? "⚠️ 还需填写:" + cfg.readiness.join("、")
+      : "✅ 必填项已完成";
+  } catch (err) {
+    $("#readiness").textContent = "⚠️ 无法加载配置:" + err;
+  }
 }
 function renderField(f) {
   const row = document.createElement("label");
@@ -109,14 +122,18 @@ function renderField(f) {
   return row;
 }
 $("#btn-save").addEventListener("click", async () => {
-  const changes = {};
-  document.querySelectorAll("#config-form input").forEach((i) => {
-    changes[i.dataset.id] =
-      i.dataset.type === "bool" ? i.checked : i.value;
-  });
-  const res = await postJSON("/api/config", changes);
-  $("#save-msg").textContent = `已保存 ${res.applied.length} 项`;
-  loadConfig();
+  try {
+    const changes = {};
+    document.querySelectorAll("#config-form input").forEach((i) => {
+      changes[i.dataset.id] =
+        i.dataset.type === "bool" ? i.checked : i.value;
+    });
+    const res = await postJSON("/api/config", changes);
+    $("#save-msg").textContent = `已保存 ${res.applied.length} 项`;
+    loadConfig();
+  } catch (err) {
+    $("#save-msg").textContent = "保存失败:" + err;
+  }
 });
 
 // ── 初始化 ──
