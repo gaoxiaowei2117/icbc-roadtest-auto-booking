@@ -10,6 +10,8 @@ import os
 import socket
 from urllib.parse import urlparse
 
+import webui_state
+
 WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "webui")
 
 # 路径 -> (webui/ 下的文件名, Content-Type)。白名单,杜绝路径穿越。
@@ -59,10 +61,30 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _read_json_body(self):
+        length = int(self.headers.get("Content-Length", 0))
+        if length == 0:
+            return {}
+        raw = self.rfile.read(length)
+        try:
+            return json.loads(raw)
+        except ValueError:
+            return {}
+
     def do_GET(self):
         path = urlparse(self.path).path
         if path in STATIC_FILES:
             self._send_static(path)
+        elif path == "/api/config":
+            self._send_json(webui_state.read_config())
+        else:
+            self._send_json({"error": "not found"}, 404)
+
+    def do_POST(self):
+        path = urlparse(self.path).path
+        if path == "/api/config":
+            applied = webui_state.write_config(self._read_json_body())
+            self._send_json({"applied": applied})
         else:
             self._send_json({"error": "not found"}, 404)
 

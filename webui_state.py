@@ -69,7 +69,6 @@ def _coerce_out(raw, ftype):
 
 def read_config():
     """返回 {'fields': [...], 'readiness': [...]}。"""
-    configure.ensure_config_exists()
     lines = configure.read_lines()
     fields = []
     for section, key, label, ftype, group in CONFIG_FIELDS:
