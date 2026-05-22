@@ -11,6 +11,7 @@ import socket
 from urllib.parse import urlparse
 
 import webui_state
+from webui_monitor import Monitor
 
 WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "webui")
 
@@ -21,6 +22,10 @@ STATIC_FILES = {
     "/style.css": ("style.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
 }
+
+
+# 全局唯一的 road.py 子进程管理器
+monitor = Monitor()
 
 
 def find_free_port(start=8787, attempts=20):
@@ -78,6 +83,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self._send_static(path)
             elif path == "/api/config":
                 self._send_json(webui_state.read_config())
+            elif path == "/api/status":
+                status = webui_state.read_status()
+                status["monitor_running"] = monitor.is_running()
+                status["monitor_pid"] = monitor.pid()
+                self._send_json(status)
+            elif path == "/api/console":
+                self._send_json({"lines": monitor.console()})
             else:
                 self._send_json({"error": "not found"}, 404)
         except Exception as exc:
@@ -89,6 +101,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if path == "/api/config":
                 applied = webui_state.write_config(self._read_json_body())
                 self._send_json({"applied": applied})
+            elif path == "/api/monitor/start":
+                started = monitor.start()
+                self._send_json({"running": monitor.is_running(), "started": started})
+            elif path == "/api/monitor/stop":
+                stopped = monitor.stop()
+                self._send_json({"running": monitor.is_running(), "stopped": stopped})
             else:
                 self._send_json({"error": "not found"}, 404)
         except Exception as exc:

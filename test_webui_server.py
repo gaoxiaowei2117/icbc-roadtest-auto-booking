@@ -1,7 +1,9 @@
 import json
 import shutil
+import sys
 import tempfile
 import threading
+import time
 import unittest
 import urllib.error
 import urllib.request
@@ -10,6 +12,7 @@ from pathlib import Path
 
 import configure
 import webui
+from webui_monitor import Monitor
 
 
 def _serve():
@@ -103,6 +106,50 @@ class ConfigApiTest(unittest.TestCase):
         _, _, body = _get(self.port, "/api/config")
         by_id = {f["id"]: f["value"] for f in json.loads(body)["fields"]}
         self.assertEqual(by_id["icbc.drvrLastName"], "Gao")
+
+
+class MonitorApiTest(unittest.TestCase):
+    def setUp(self):
+        self._orig = configure.CONFIG_PATH
+        self.tmp = Path(tempfile.mkdtemp())
+        self.cfg = self.tmp / "config.yml"
+        shutil.copy("config.example.yml", self.cfg)
+        configure.CONFIG_PATH = self.cfg
+        self._orig_monitor = webui.monitor
+        webui.monitor = Monitor(command=[
+            sys.executable, "-u", "-c",
+            "import time; print('fake-monitor'); time.sleep(30)"])
+        self.server, self.port = _serve()
+
+    def tearDown(self):
+        self.server.shutdown()
+        self.server.server_close()
+        webui.monitor.stop()
+        webui.monitor = self._orig_monitor
+        configure.CONFIG_PATH = self._orig
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_status_endpoint_reports_monitor_state(self):
+        status, _, body = _get(self.port, "/api/status")
+        self.assertEqual(status, 200)
+        data = json.loads(body)
+        self.assertFalse(data["monitor_running"])
+        self.assertIn("booking", data)
+        self.assertIn("log_summary", data)
+
+    def test_start_then_stop_monitor(self):
+        _, started = _post(self.port, "/api/monitor/start", {})
+        self.assertTrue(started["running"])
+        ok = False
+        for _ in range(100):
+            _, _, body = _get(self.port, "/api/console")
+            if any("fake-monitor" in l for l in json.loads(body)["lines"]):
+                ok = True
+                break
+            time.sleep(0.05)
+        self.assertTrue(ok)
+        _, stopped = _post(self.port, "/api/monitor/stop", {})
+        self.assertFalse(stopped["running"])
 
 
 if __name__ == "__main__":
