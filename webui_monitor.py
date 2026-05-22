@@ -11,7 +11,8 @@ class Monitor:
 
     def __init__(self, command=None):
         # 用 sys.executable 而非硬编码 python3,保证 Windows 也能调用
-        self._command = command or [sys.executable, "road.py", "config.yml"]
+        # -u: 让 road.py 的 stdout 不缓冲,实时输出才能及时显示
+        self._command = command or [sys.executable, "-u", "road.py", "config.yml"]
         self._proc = None
         self._lines = collections.deque(maxlen=500)
         self._lock = threading.Lock()

@@ -116,6 +116,7 @@ class MonitorApiTest(unittest.TestCase):
         shutil.copy("config.example.yml", self.cfg)
         configure.CONFIG_PATH = self.cfg
         self._orig_monitor = webui.monitor
+        # -u: unbuffered stdout, else block-buffering hides output past the poll window
         webui.monitor = Monitor(command=[
             sys.executable, "-u", "-c",
             "import time; print('fake-monitor'); time.sleep(30)"])
