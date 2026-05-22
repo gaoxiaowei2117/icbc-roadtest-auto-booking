@@ -84,3 +84,27 @@ def read_config():
             "value": _coerce_out(raw, ftype),
         })
     return {"fields": fields, "readiness": configure.readiness_issues(lines)}
+
+
+def write_config(changes):
+    """changes: {dotted_id: value}。按 CONFIG_FIELDS 应用,返回成功写入的 id 列表。"""
+    by_id = {
+        _dotted(section, key): (section, key, ftype)
+        for section, key, _label, ftype, _group in CONFIG_FIELDS
+    }
+    lines = configure.read_lines()
+    applied = []
+    for cid, value in changes.items():
+        if cid not in by_id:
+            continue
+        section, key, ftype = by_id[cid]
+        if ftype == "bool":
+            new_value = bool(value)
+        elif ftype == "int":
+            new_value = str(value)
+        else:
+            new_value = "" if value is None else str(value)
+        if configure.set_value(lines, section, key, new_value):
+            applied.append(cid)
+    configure.write_lines(lines)
+    return applied
