@@ -118,5 +118,82 @@ class ReadStatusTest(unittest.TestCase):
         self.assertEqual(status["log_summary"]["recent_entries"], 2)
 
 
+class PickerFieldTypesTest(unittest.TestCase):
+    """新的字段类型:date / time_range / multi_select 的读写往返。"""
+
+    def setUp(self):
+        self._orig = configure.CONFIG_PATH
+        self.tmp = Path(tempfile.mkdtemp())
+        self.cfg = self.tmp / "config.yml"
+        shutil.copy("config.example.yml", self.cfg)
+        configure.CONFIG_PATH = self.cfg
+
+    def tearDown(self):
+        configure.CONFIG_PATH = self._orig
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_field_types_are_date_time_range_and_multi_select(self):
+        by_id = {f["id"]: f for f in webui_state.read_config()["fields"]}
+        self.assertEqual(by_id["icbc.expactAfterDate"]["type"], "date")
+        self.assertEqual(by_id["icbc.expactBeforeDate"]["type"], "date")
+        self.assertEqual(by_id["icbc.expactTimeRange"]["type"], "time_range")
+        self.assertEqual(by_id["icbc.prfDaysOfWeek"]["type"], "multi_select")
+        self.assertEqual(by_id["icbc.prfPartsOfDay"]["type"], "multi_select")
+
+    def test_multi_select_field_exposes_options_and_parsed_value(self):
+        by_id = {f["id"]: f for f in webui_state.read_config()["fields"]}
+        days = by_id["icbc.prfDaysOfWeek"]
+        # 模板里是 "[0,1,2,3,4,5,6]" — 应解析成 7 个字符串
+        self.assertEqual(days["value"], ["0", "1", "2", "3", "4", "5", "6"])
+        # options 与 FIELD_OPTIONS 对应,7 个 (value, label)
+        self.assertEqual(len(days["options"]), 7)
+        self.assertEqual(days["options"][0], ["0", "日"])
+        parts = by_id["icbc.prfPartsOfDay"]
+        self.assertEqual(parts["value"], ["0", "1"])
+        self.assertEqual(len(parts["options"]), 2)
+
+    def test_write_multi_select_serializes_to_bracket_string(self):
+        applied = webui_state.write_config({
+            "icbc.prfDaysOfWeek": ["1", "3", "5"],
+            "icbc.prfPartsOfDay": ["0"],
+        })
+        self.assertIn("icbc.prfDaysOfWeek", applied)
+        self.assertIn("icbc.prfPartsOfDay", applied)
+        import yaml
+        with open(self.cfg, encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        self.assertEqual(data["icbc"]["prfDaysOfWeek"], "[1,3,5]")
+        self.assertEqual(data["icbc"]["prfPartsOfDay"], "[0]")
+        # 再读回来应是列表
+        by_id = {f["id"]: f for f in webui_state.read_config()["fields"]}
+        self.assertEqual(by_id["icbc.prfDaysOfWeek"]["value"], ["1", "3", "5"])
+
+    def test_write_multi_select_accepts_legacy_string_value(self):
+        # 防御性:即便有调用方仍然传字符串,也应能正确解析。
+        applied = webui_state.write_config({
+            "icbc.prfDaysOfWeek": "[2,4]",
+        })
+        self.assertEqual(applied, ["icbc.prfDaysOfWeek"])
+        by_id = {f["id"]: f for f in webui_state.read_config()["fields"]}
+        self.assertEqual(by_id["icbc.prfDaysOfWeek"]["value"], ["2", "4"])
+
+    def test_write_multi_select_empty_list(self):
+        applied = webui_state.write_config({"icbc.prfPartsOfDay": []})
+        self.assertEqual(applied, ["icbc.prfPartsOfDay"])
+        by_id = {f["id"]: f for f in webui_state.read_config()["fields"]}
+        self.assertEqual(by_id["icbc.prfPartsOfDay"]["value"], [])
+
+    def test_write_time_range_and_date_are_stored_as_string(self):
+        applied = webui_state.write_config({
+            "icbc.expactAfterDate": "2026-08-01",
+            "icbc.expactTimeRange": "10:00-12:30",
+        })
+        self.assertCountEqual(applied,
+                              ["icbc.expactAfterDate", "icbc.expactTimeRange"])
+        by_id = {f["id"]: f for f in webui_state.read_config()["fields"]}
+        self.assertEqual(by_id["icbc.expactAfterDate"]["value"], "2026-08-01")
+        self.assertEqual(by_id["icbc.expactTimeRange"]["value"], "10:00-12:30")
+
+
 if __name__ == "__main__":
     unittest.main()

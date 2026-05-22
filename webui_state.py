@@ -10,18 +10,18 @@ import os
 import configure
 
 # (section, key, label, type, group) — section None 表示顶层 key
-# type: text | bool | date | int
+# type: text | bool | date | int | time_range | multi_select
 CONFIG_FIELDS = [
     ("icbc", "drvrLastName", "姓氏", "text", "ICBC 账户"),
     ("icbc", "licenceNumber", "驾照号", "text", "ICBC 账户"),
     ("icbc", "keyword", "ICBC 关键字/密码", "text", "ICBC 账户"),
     ("icbc", "examClass", "考试类别", "text", "ICBC 账户"),
     ("icbc", "posID", "考点 ID", "text", "ICBC 账户"),
-    ("icbc", "expactAfterDate", "最早日期 (YYYY-MM-DD)", "date", "日期 / 时间"),
-    ("icbc", "expactBeforeDate", "最晚日期 (YYYY-MM-DD)", "date", "日期 / 时间"),
-    ("icbc", "expactTimeRange", "时间范围", "text", "日期 / 时间"),
-    ("icbc", "prfDaysOfWeek", "偏好星期 (0=周日)", "text", "日期 / 时间"),
-    ("icbc", "prfPartsOfDay", "偏好时段 (0=上午,1=下午)", "text", "日期 / 时间"),
+    ("icbc", "expactAfterDate", "最早日期", "date", "日期 / 时间"),
+    ("icbc", "expactBeforeDate", "最晚日期", "date", "日期 / 时间"),
+    ("icbc", "expactTimeRange", "时间范围", "time_range", "日期 / 时间"),
+    ("icbc", "prfDaysOfWeek", "偏好星期", "multi_select", "日期 / 时间"),
+    ("icbc", "prfPartsOfDay", "偏好时段", "multi_select", "日期 / 时间"),
     ("gmail", "enable", "启用 Gmail", "bool", "Gmail"),
     ("gmail", "email", "Gmail 地址", "text", "Gmail"),
     ("gmail", "password", "Gmail 应用密码", "text", "Gmail"),
@@ -48,6 +48,27 @@ CONFIG_FIELDS = [
     ("requestLimit", "interval", "限流间隔(秒)", "int", "高级"),
 ]
 
+# 多选字段的可选项:dotted_id -> [[value, label], ...]
+# value 用字符串以便 JSON 传输和 YAML 写回一致;用 list 而非 tuple
+# 是为了让 Python 端的形状与序列化到前端的 JSON 数组一致。
+FIELD_OPTIONS = {
+    "icbc.prfDaysOfWeek": [
+        ["0", "日"], ["1", "一"], ["2", "二"], ["3", "三"],
+        ["4", "四"], ["5", "五"], ["6", "六"],
+    ],
+    "icbc.prfPartsOfDay": [
+        ["0", "上午"], ["1", "下午"],
+    ],
+}
+
+
+def _parse_bracket_list(raw):
+    """把 "[0,1,2]" 这种字符串解析成 ['0','1','2']。"""
+    s = str(raw).strip()
+    if s.startswith("[") and s.endswith("]"):
+        s = s[1:-1]
+    return [x.strip() for x in s.split(",") if x.strip()]
+
 
 def _dotted(section, key):
     return f"{section}.{key}" if section else f"_root.{key}"
@@ -56,7 +77,7 @@ def _dotted(section, key):
 def _coerce_out(raw, ftype):
     """把 configure.get_value 返回的字符串转成带类型的 JSON 值。"""
     if raw is None:
-        return None
+        return [] if ftype == "multi_select" else None
     if ftype == "bool":
         return str(raw).strip().lower() in ("true", "yes", "1")
     if ftype == "int":
@@ -64,6 +85,8 @@ def _coerce_out(raw, ftype):
             return int(str(raw).strip())
         except ValueError:
             return raw
+    if ftype == "multi_select":
+        return _parse_bracket_list(raw)
     return raw
 
 
@@ -73,15 +96,19 @@ def read_config():
     fields = []
     for section, key, label, ftype, group in CONFIG_FIELDS:
         raw = configure.get_value(lines, section, key)
-        fields.append({
-            "id": _dotted(section, key),
+        dotted = _dotted(section, key)
+        field = {
+            "id": dotted,
             "section": section or "_root",
             "key": key,
             "label": label,
             "type": ftype,
             "group": group,
             "value": _coerce_out(raw, ftype),
-        })
+        }
+        if ftype == "multi_select":
+            field["options"] = FIELD_OPTIONS.get(dotted, [])
+        fields.append(field)
     return {"fields": fields, "readiness": configure.readiness_issues(lines)}
 
 
@@ -104,6 +131,14 @@ def write_config(changes):
                 new_value = str(value).strip().lower() in ("true", "yes", "1")
         elif ftype == "int":
             new_value = str(value)
+        elif ftype == "multi_select":
+            if isinstance(value, list):
+                items = value
+            elif isinstance(value, str):
+                items = _parse_bracket_list(value)
+            else:
+                items = []
+            new_value = "[" + ",".join(str(x) for x in items) + "]"
         else:
             new_value = "" if value is None else str(value)
         if configure.set_value(lines, section, key, new_value):

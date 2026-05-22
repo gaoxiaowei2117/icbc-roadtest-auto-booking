@@ -103,30 +103,97 @@ async function loadConfig() {
   }
 }
 function renderField(f) {
-  const row = document.createElement("label");
+  const row = document.createElement("div");
   row.className = "field";
   const span = document.createElement("span");
   span.textContent = f.label;
+  row.appendChild(span);
+
+  if (f.type === "multi_select") {
+    const group = document.createElement("div");
+    group.className = "multi-select";
+    group.dataset.id = f.id;
+    group.dataset.type = f.type;
+    const selected = new Set((f.value || []).map(String));
+    (f.options || []).forEach(([val, lbl]) => {
+      const item = document.createElement("label");
+      item.className = "ms-item";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.value = val;
+      cb.checked = selected.has(String(val));
+      item.appendChild(cb);
+      item.appendChild(document.createTextNode(lbl));
+      group.appendChild(item);
+    });
+    row.appendChild(group);
+    return row;
+  }
+
+  if (f.type === "time_range") {
+    const wrap = document.createElement("div");
+    wrap.className = "time-range";
+    wrap.dataset.id = f.id;
+    wrap.dataset.type = f.type;
+    let start = "", end = "";
+    if (f.value) {
+      const first = String(f.value).split(",")[0].trim();
+      const m = first.match(/^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/);
+      if (m) {
+        start = m[1].padStart(2, "0") + ":" + m[2];
+        end = m[3].padStart(2, "0") + ":" + m[4];
+      }
+    }
+    const s = document.createElement("input");
+    s.type = "time"; s.value = start; s.className = "tr-start";
+    const dash = document.createElement("span");
+    dash.className = "tr-sep";
+    dash.textContent = "—";
+    const e = document.createElement("input");
+    e.type = "time"; e.value = end; e.className = "tr-end";
+    wrap.appendChild(s);
+    wrap.appendChild(dash);
+    wrap.appendChild(e);
+    row.appendChild(wrap);
+    return row;
+  }
+
   const input = document.createElement("input");
   if (f.type === "bool") {
     input.type = "checkbox";
     input.checked = !!f.value;
+  } else if (f.type === "date") {
+    input.type = "date";
+    input.value = f.value == null ? "" : f.value;
   } else {
     input.type = "text";
     input.value = f.value == null ? "" : f.value;
   }
   input.dataset.id = f.id;
   input.dataset.type = f.type;
-  row.appendChild(span);
   row.appendChild(input);
   return row;
 }
 $("#btn-save").addEventListener("click", async () => {
   try {
     const changes = {};
-    document.querySelectorAll("#config-form input").forEach((i) => {
+    // 单值字段(text / date / int / bool):dataset.id 直接挂在 input 上
+    document.querySelectorAll("#config-form input[data-id]").forEach((i) => {
       changes[i.dataset.id] =
         i.dataset.type === "bool" ? i.checked : i.value;
+    });
+    // 多选字段:dataset.id 挂在容器上,值收集勾选项
+    document.querySelectorAll("#config-form .multi-select").forEach((g) => {
+      const picked = Array.from(g.querySelectorAll("input[type=checkbox]"))
+        .filter((cb) => cb.checked)
+        .map((cb) => cb.value);
+      changes[g.dataset.id] = picked;
+    });
+    // 时间范围字段:拼成 "HH:MM-HH:MM";若两端任一为空,存空串
+    document.querySelectorAll("#config-form .time-range").forEach((g) => {
+      const s = g.querySelector(".tr-start").value;
+      const e = g.querySelector(".tr-end").value;
+      changes[g.dataset.id] = (s && e) ? `${s}-${e}` : "";
     });
     const res = await postJSON("/api/config", changes);
     $("#save-msg").textContent = `已保存 ${res.applied.length} 项`;
