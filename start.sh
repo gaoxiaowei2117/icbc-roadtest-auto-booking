@@ -41,8 +41,9 @@ echo "1. 🚀 Live Mode (connect to real ICBC system)"
 echo "2. 📊 Check Status"
 echo "3. 📋 View Recent Logs"
 echo "4. ⚙️  Configure (edit config.yml interactively)"
+echo "5. 🖥️  Open control panel (web UI)"
 echo ""
-read -p "Enter choice (1-4): " choice
+read -p "Enter choice (1-5): " choice
 
 case $choice in
     1)
@@ -71,6 +72,11 @@ case $choice in
     4)
         echo ""
         python3 configure.py
+        ;;
+    5)
+        echo ""
+        echo "🖥️  Opening control panel..."
+        python3 webui.py
         ;;
     *)
         echo "Invalid choice. Exiting."
