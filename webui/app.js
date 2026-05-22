@@ -44,6 +44,9 @@ async function refreshStatus() {
     ind.textContent = s.monitor_running ? "● 监控中" : "● 已停止";
     ind.className = "indicator " + (s.monitor_running ? "on" : "off");
     $("#status-body").innerHTML = renderStatus(s);
+    // 按状态切换按钮可用性,避免误点(同时也是醒目的状态信号)
+    $("#btn-start").disabled = !!s.monitor_running;
+    $("#btn-stop").disabled = !s.monitor_running;
     const c = await getJSON("/api/console");
     const pre = $("#console");
     pre.textContent = c.lines.length ? c.lines.join("\n") : "—";
@@ -52,18 +55,24 @@ async function refreshStatus() {
     const ind = $("#monitor-indicator");
     ind.textContent = "● 连接失败";
     ind.className = "indicator off";
+    // 连不上服务器时两个按钮都禁用,免得用户徒劳
+    $("#btn-start").disabled = true;
+    $("#btn-stop").disabled = true;
   }
 }
 function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 function renderStatus(s) {
+  const running = s.monitor_running
+    ? '<span class="status-on">● 运行中</span>'
+    : '<span class="status-off">● 已停止</span>';
   const booking = s.booking ? (s.booking.status || "unknown") : "未预约";
   const ls = s.log_summary;
   const log = ls
     ? `${ls.errors} 错误 / ${ls.warnings} 警告 / ${ls.no_appointments} 次无名额`
     : "无日志";
-  return `预约状态:${esc(booking)}<br>上次运行:${esc(s.last_run || "从未")}<br>最近日志:${log}`;
+  return `程序状态:${running}<br>预约状态:${esc(booking)}<br>上次运行:${esc(s.last_run || "从未")}<br>最近日志:${log}`;
 }
 
 // ── 启动 / 停止 ──

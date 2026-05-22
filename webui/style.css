@@ -37,6 +37,14 @@ button {
   font-size: 13px; background: #2f7be2; color: #fff;
 }
 button#btn-stop { background: #e2492f; }
+button:disabled {
+  background: #b8bcc4;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+button#btn-stop:disabled { background: #b8bcc4; }
+.status-on { color: #3ad07a; font-weight: 700; }
+.status-off { color: #9aa0ad; font-weight: 700; }
 .hint { font-size: 12px; color: #8a8f9a; margin: 10px 0 0; }
 #console {
   background: #11141b; color: #9fe6b8; font-size: 12px;
