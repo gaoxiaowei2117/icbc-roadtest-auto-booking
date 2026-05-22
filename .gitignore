@@ -26,3 +26,6 @@ __pycache__/
 # Large unrelated media
 Numb.mp3
 *.mp3
+
+# Brainstorming visual companion
+.superpowers/
