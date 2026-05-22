@@ -114,6 +114,8 @@ class ReadStatusTest(unittest.TestCase):
         self.assertEqual(status["last_run"], "2026-05-21 10:00:00")
         self.assertEqual(status["log_summary"]["errors"], 1)
         self.assertEqual(status["log_summary"]["no_appointments"], 1)
+        self.assertEqual(status["log_summary"]["warnings"], 0)
+        self.assertEqual(status["log_summary"]["recent_entries"], 2)
 
 
 if __name__ == "__main__":

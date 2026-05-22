@@ -132,9 +132,10 @@ def _read_last_run(data_dir):
     path = os.path.join(data_dir, "last_run.txt")
     try:
         with open(path, encoding="utf-8") as f:
-            return f.readline().strip()
+            result = f.readline().strip()
     except OSError:
         return None
+    return result if result else None
 
 
 def _read_log_summary(data_dir):
