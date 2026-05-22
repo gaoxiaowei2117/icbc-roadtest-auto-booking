@@ -8,8 +8,12 @@ import http.server
 import json
 import os
 import socket
+import sys
+import threading
+import webbrowser
 from urllib.parse import urlparse
 
+import configure
 import webui_state
 from webui_monitor import Monitor
 
@@ -113,8 +117,43 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self._send_json({"error": str(exc)}, 500)
 
 
+def _check_dependencies():
+    """检查 road.py 运行所需依赖。缺失只警告,不阻止配置编辑。"""
+    missing = []
+    for mod in ("requests", "yaml", "faker", "twilio", "pypushdeer"):
+        try:
+            __import__(mod)
+        except ImportError:
+            missing.append(mod)
+    if missing:
+        print("⚠️  缺少依赖,监控功能不可用(配置仍可编辑):")
+        print("   pip3 install -r requirements.txt")
+
+
 def main():
-    pass  # Task 8 实现
+    configure.ensure_config_exists()
+    _check_dependencies()
+
+    port = find_free_port()
+    url = f"http://localhost:{port}"
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", port), Handler)
+
+    print("🖥️  ICBC 自动预约控制面板")
+    print(f"   {url}")
+    print("ℹ️  注意:停止此面板程序(Ctrl+C)会一并停止正在运行的监控")
+    print("   (仅关闭浏览器标签页不影响,服务仍在后台运行)")
+
+    threading.Timer(0.5, lambda: webbrowser.open(url)).start()
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        if monitor.is_running():
+            print("\n⏹  正在停止监控...")
+            monitor.stop()
+        server.shutdown()
+        print("✅ 已退出")
 
 
 if __name__ == "__main__":
