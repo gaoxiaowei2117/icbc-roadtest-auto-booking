@@ -198,6 +198,23 @@ It will prompt you to pick:
 - `1` — 🚀 Live mode (connect to the real ICBC system)
 - `2` — 📊 Show status
 - `3` — 📋 Show recent logs
+- `4` — ⚙️ Configure (edit config.yml interactively)
+- `5` — 🖥️ Open control panel (web UI)
+
+### Control panel (web UI)
+
+```bash
+python3 webui.py
+```
+
+Starts a local control panel and opens it in your browser. From there you
+can edit the configuration, start and stop the monitor, and watch live
+status and console output — no command line needed. Uses only the Python
+standard library (no extra dependencies). The server binds to
+`127.0.0.1` only.
+
+Note: stopping `webui.py` (Ctrl+C) also stops a running monitor. Closing
+just the browser tab does not — the server keeps running in the background.
 
 ### Live mode
 
@@ -316,6 +333,10 @@ icbc-roadtest-auto-booking/
 | `config.example.yml` | Committed config template |
 | `config.yml` | Your local config (ignored by git) |
 | `start.sh` | Interactive launcher |
+| `webui.py` | Web control panel server (stdlib only) |
+| `webui_state.py` | Config + status data layer for the panel |
+| `webui_monitor.py` | Manages the road.py subprocess for the panel |
+| `webui/` | Control panel frontend (HTML/CSS/JS) |
 | `requirements.txt` | Python dependencies |
 
 ## ⚠️ Important Notes
