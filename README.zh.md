@@ -42,7 +42,24 @@
 - **网络连接**：能访问ICBC官网和Gmail
 - **Gmail账户**：需要开启2FA并生成应用密码
 
-## 🚀 快速开始
+## 📦 免安装版（不需要装 Python）
+
+不想装 Python？直接到 [**Releases 页面**](https://github.com/gaoxiaowei2117/icbc-roadtest-auto-booking/releases) 下载对应系统的单文件可执行版：
+
+| 系统 | 下载文件 |
+|------|----------|
+| Windows (x64) | `icbc-control-panel-windows.zip` |
+| macOS (Apple Silicon) | `icbc-control-panel-macos.zip` |
+| Linux (x64) | `icbc-control-panel-linux.zip` |
+
+解压后双击 `icbc-control-panel(.exe)`，浏览器会自动打开控制面板。
+首次运行会在 exe 同目录自动生成 `config.yml`，在"配置"页填好后切到"监控"页点"启动监控"即可。
+
+> 包未做代码签名，Windows SmartScreen 和 macOS Gatekeeper 首次运行会拦一下 —
+> 解压后看 `读我.txt` 里写的绕过步骤。
+> Intel Mac 与 32 位 Windows 用户暂时只能用源码方式运行。
+
+## 🚀 从源码运行
 
 ### 1. 克隆或下载项目
 

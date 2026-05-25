@@ -42,7 +42,26 @@
 - **Network**: must be able to reach `onlinebusiness.icbc.com` and `imap.gmail.com`
 - **Gmail account**: 2-step verification enabled, with an app password generated
 
-## 🚀 Quick Start
+## 📦 Pre-built Binaries (no Python required)
+
+If you'd rather not install Python, grab a single-file executable from the
+[**Releases page**](https://github.com/gaoxiaowei2117/icbc-roadtest-auto-booking/releases):
+
+| OS | Asset |
+|----|-------|
+| Windows (x64) | `icbc-control-panel-windows.zip` |
+| macOS (Apple Silicon) | `icbc-control-panel-macos.zip` |
+| Linux (x64) | `icbc-control-panel-linux.zip` |
+
+Unzip, double-click `icbc-control-panel(.exe)`, and the control panel will open
+in your browser. First run auto-creates `config.yml` next to the executable —
+fill it in via the **Configure** tab, then start monitoring.
+
+> The binaries are unsigned. Windows SmartScreen and macOS Gatekeeper will
+> warn on first launch — see `读我.txt` inside the zip for the bypass steps.
+> Intel Mac and 32-bit Windows users should run from source instead.
+
+## 🚀 Quick Start (from source)
 
 ### 1. Clone the repository
 

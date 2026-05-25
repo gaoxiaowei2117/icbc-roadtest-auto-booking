@@ -1,0 +1,110 @@
+name: Build release binaries
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            asset_name: icbc-control-panel-linux
+            binary: icbc-control-panel
+          - os: macos-latest
+            asset_name: icbc-control-panel-macos
+            binary: icbc-control-panel
+          - os: windows-latest
+            asset_name: icbc-control-panel-windows
+            binary: icbc-control-panel.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+
+      - name: Build executable
+        run: pyinstaller icbc-control-panel.spec --noconfirm
+
+      - name: Stage release files
+        shell: bash
+        run: |
+          mkdir -p staging
+          cp "dist/${{ matrix.binary }}" staging/
+          cat > "staging/读我.txt" <<'EOF'
+          ICBC 自动预约控制面板
+          ========================
+
+          使用方法
+          --------
+          1. 双击 icbc-control-panel(.exe) 启动
+          2. 浏览器会自动打开 http://localhost:xxxx
+          3. 在"配置"页填好 ICBC 账号与 Gmail 应用密码
+          4. 切到"监控"页点"启动监控"
+
+          关闭程序
+          --------
+          在弹出的黑色控制台窗口里按 Ctrl+C, 或直接关掉窗口。
+          注意:关闭控制台 = 同时停止后台监控。
+
+          首次启动可能弹出的安全提示
+          --------------------------
+          - Windows SmartScreen: 点"更多信息" -> "仍要运行"
+          - macOS 警告"无法打开": 在"系统设置 -> 隐私与安全性"里点"仍要打开"
+
+          详细文档与最新版本
+          ------------------
+          https://github.com/gaoxiaowei2117/icbc-roadtest-auto-booking
+          EOF
+
+      - name: Zip (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x "staging/${{ matrix.binary }}"
+          cd staging && zip -r "../${{ matrix.asset_name }}.zip" .
+
+      - name: Zip (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path staging/* -DestinationPath ${{ matrix.asset_name }}.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: ${{ matrix.asset_name }}.zip
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*.zip
+          draft: true
+          generate_release_notes: true
