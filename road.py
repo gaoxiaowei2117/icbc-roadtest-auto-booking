@@ -11,8 +11,6 @@ import os
 import threading
 import time
 from faker import Faker
-from twilio.rest import Client
-from pypushdeer import PushDeer
 import logging
 import ctypes
 import imaplib
@@ -120,34 +118,6 @@ def play_notification_sound(config, subject, body):
             logging.error("error playing custom audio: {}".format(e))
             # Final fallback to terminal bell
             print('\a' * 3)
-
-
-@safely_run
-def send_pushdeer(config, subject, body):
-    if not config["pushdeer"]["enable"]:
-        return
-    key = config['pushdeer']['key']
-    pushdeer = PushDeer(pushkey=key)
-    ret = pushdeer.send_markdown(subject, desp=body)
-    logging.info("send pushdeer, success={}".format(ret))
-
-
-@safely_run
-def send_sms(config, subject, body):
-    if not config["pushsms"]["enable"]:
-        return
-    msg = subject + body
-    account_sid = config['pushsms']['accountSid']
-    auth_token = config['pushsms']['authToken']
-    client = Client(account_sid, auth_token)
-    client.http_client.logger.setLevel(logging.ERROR)
-
-    message = client.messages.create(
-        from_=config['pushsms']['fromNumber'],
-        body=msg,
-        to=config['pushsms']['toNumber']
-    )
-    logging.info("send twilio, id={}, error={}".format(message.sid, message.error_code))
 
 
 # Load configuration from YAML file
@@ -398,7 +368,7 @@ def is_special_time():
 
 def notify_appointments(config, subject, body):
     threads = []
-    notify_called_function = [send_host_notify, send_sms, send_pushdeer, send_ntfy, play_notification_sound]
+    notify_called_function = [send_host_notify, send_ntfy, play_notification_sound]
     for f in notify_called_function:
         t = threading.Thread(target=f, args=(config, subject, body))
         threads.append(t)

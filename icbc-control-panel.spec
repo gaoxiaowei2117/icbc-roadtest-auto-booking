@@ -2,23 +2,18 @@
 # PyInstaller spec for the ICBC control panel single-file exe.
 # Build with:   pyinstaller icbc-control-panel.spec --noconfirm
 
-from PyInstaller.utils.hooks import collect_submodules
-
 datas = [
     ("webui", "webui"),
     ("icbc_pos_list.csv", "."),
     ("config.example.yml", "."),
 ]
 
-# pypushdeer / twilio register subpackages lazily — pull them in explicitly
-hiddenimports = collect_submodules("twilio") + collect_submodules("pypushdeer")
-
 a = Analysis(
     ["app.py"],
     pathex=[],
     binaries=[],
     datas=datas,
-    hiddenimports=hiddenimports,
+    hiddenimports=[],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

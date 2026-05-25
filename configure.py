@@ -239,29 +239,11 @@ def edit_auto_booking(lines: list[str]) -> None:
 def edit_notifications(lines: list[str]) -> None:
     print("\n  Notifications (all optional)")
 
-    print("\n  PushDeer:")
-    en = prompt_bool("    Enable PushDeer", get_value(lines, "pushdeer", "enable"))
-    set_value(lines, "pushdeer", "enable", en)
-    if en:
-        set_value(lines, "pushdeer", "key", prompt("    PushDeer key", get_value(lines, "pushdeer", "key")))
-
     print("\n  ntfy.sh:")
     en = prompt_bool("    Enable ntfy", get_value(lines, "ntfy", "enable"))
     set_value(lines, "ntfy", "enable", en)
     if en:
         set_value(lines, "ntfy", "topic", prompt("    ntfy topic", get_value(lines, "ntfy", "topic")))
-
-    print("\n  Twilio SMS:")
-    en = prompt_bool("    Enable SMS", get_value(lines, "pushsms", "enable"))
-    set_value(lines, "pushsms", "enable", en)
-    if en:
-        for key, label in [
-            ("accountSid", "    Twilio Account SID"),
-            ("authToken", "    Twilio Auth Token"),
-            ("fromNumber", "    From number (e.g., +12025550123)"),
-            ("toNumber", "    To number (e.g., +12025550123)"),
-        ]:
-            set_value(lines, "pushsms", key, prompt(label, get_value(lines, "pushsms", key)))
 
     print("\n  Local sound:")
     set_value(lines, "pushsound", "enable", prompt_bool("    Enable sound notification", get_value(lines, "pushsound", "enable")))
@@ -349,9 +331,7 @@ def show_current(lines: list[str]) -> None:
         ("autoBooking", "enable", "Auto-booking enabled", False),
         ("autoBooking", "timeSelectionStrategy", "Strategy", False),
         ("autoBooking", "exitAfterSuccess", "Exit on success", False),
-        ("pushdeer", "enable", "PushDeer", False),
         ("ntfy", "enable", "ntfy", False),
-        ("pushsms", "enable", "SMS", False),
         ("pushsound", "enable", "Sound", False),
         ("pushlocal", "enable", "Local desktop", False),
         (None, "pauseTimeMin", "Pause minutes", False),

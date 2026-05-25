@@ -95,10 +95,10 @@ brew install python3
 安装Python依赖库：
 
 ```bash
-pip3 install requests pyyaml faker twilio pypushdeer
+pip3 install -r requirements.txt
 
 # 如果遇到权限问题，使用：
-pip3 install --user requests pyyaml faker twilio pypushdeer
+pip3 install --user -r requirements.txt
 ```
 
 ### 3. 配置Gmail应用密码
@@ -176,17 +176,6 @@ autoBooking:
   exitAfterSuccess: true              # 成功后退出
 
 # 通知配置（可选）
-pushdeer:
-  enable: false                       # PushDeer推送
-  key: ""                             # PushDeer密钥
-
-pushsms:
-  enable: false                       # SMS推送
-  accountSid: ""                      # Twilio账户ID
-  authToken: ""                       # Twilio认证令牌
-  fromNumber: ""                      # 发送号码
-  toNumber: ""                        # 接收号码
-
 ntfy:
   enable: false                       # Ntfy推送
   topic: ""                           # Ntfy主题
@@ -283,13 +272,13 @@ grep -A 5 "gmail:" config.yml
 **解决方案**：
 ```bash
 # 安装所有依赖
-pip3 install requests pyyaml faker twilio pypushdeer
+pip3 install -r requirements.txt
 
 # 如果使用虚拟环境
 python3 -m venv venv
 source venv/bin/activate  # Linux/Mac
 # venv\Scripts\activate   # Windows
-pip install requests pyyaml faker twilio pypushdeer
+pip install -r requirements.txt
 ```
 
 #### 3. ICBC服务器错误
@@ -399,7 +388,7 @@ roadtest/
 ```bash
 # 安装系统
 sudo apt install python3 python3-pip  # Ubuntu
-pip3 install requests pyyaml faker twilio pypushdeer
+pip3 install -r requirements.txt
 
 # 配置Gmail
 # 1. 开启2FA

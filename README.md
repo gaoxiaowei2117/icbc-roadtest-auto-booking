@@ -179,17 +179,6 @@ autoBooking:
   exitAfterSuccess: true
 
 # Notifications (all optional)
-pushdeer:
-  enable: false
-  key: ""
-
-pushsms:
-  enable: false
-  accountSid: ""                      # Twilio
-  authToken: ""
-  fromNumber: ""
-  toNumber: ""
-
 ntfy:
   enable: false
   topic: ""

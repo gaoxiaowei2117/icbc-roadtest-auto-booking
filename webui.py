@@ -121,7 +121,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
 def _check_dependencies():
     """检查 road.py 运行所需依赖。缺失只警告,不阻止配置编辑。"""
     missing = []
-    for mod in ("requests", "yaml", "faker", "twilio", "pypushdeer"):
+    for mod in ("requests", "yaml", "faker"):
         try:
             __import__(mod)
         except ImportError:

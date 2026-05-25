@@ -269,7 +269,7 @@ class EnglishLabelsTest(unittest.TestCase):
         self.assertEqual(by_id["icbc.posID"]["group_en"], "ICBC Account")
         self.assertEqual(by_id["icbc.expactAfterDate"]["group_en"], "Date / Time")
         self.assertEqual(by_id["gmail.enable"]["label_en"], "Enable Gmail")
-        self.assertEqual(by_id["pushsms.enable"]["group_en"], "Notifications")
+        self.assertEqual(by_id["ntfy.enable"]["group_en"], "Notifications")
         self.assertEqual(by_id["_root.pauseTimeMin"]["group_en"], "Advanced")
 
     def test_multi_select_options_en_translated(self):
