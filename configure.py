@@ -103,6 +103,42 @@ def get_value(lines: list[str], section, key: str):
     return _unquote(raw)
 
 
+def ensure_key(lines: list[str], section, key: str, default: str = '""') -> bool:
+    """If section.key is missing, insert a stub line with `default`.
+
+    Returns True if a line was added, False if the key already existed.
+    Used to migrate older config.yml files that pre-date a new field.
+    """
+    idx, _, _, _ = _find(lines, section, key)
+    if idx is not None:
+        return False
+
+    if section is None:
+        if lines and not lines[-1].endswith("\n"):
+            lines[-1] += "\n"
+        lines.append(f"{key}: {default}\n")
+        return True
+
+    section_idx = None
+    for i, line in enumerate(lines):
+        m = SECTION_HEADER_RE.match(line.rstrip("\n"))
+        if m and m.group(1) == section:
+            section_idx = i
+            break
+
+    if section_idx is None:
+        if lines and not lines[-1].endswith("\n"):
+            lines[-1] += "\n"
+        if lines and lines[-1].strip():
+            lines.append("\n")
+        lines.append(f"{section}:\n")
+        lines.append(f"  {key}: {default}\n")
+        return True
+
+    lines.insert(section_idx + 1, f"  {key}: {default}\n")
+    return True
+
+
 def set_value(lines: list[str], section, key: str, new_value, quote=None) -> bool:
     """Update section.key. quote=None preserves the existing quoting style."""
     idx, indent, raw, comment = _find(lines, section, key)

@@ -10,6 +10,14 @@ icbc:
   prfDaysOfWeek: "[0,1,2,3,4,5,6]"
   prfPartsOfDay: "[0,1]"
 
+# Optional: sync the Gmail address below into the ICBC account.
+# When enabled, after each login the ICBC account email is compared with
+# `gmail.email`. If they differ, the original ICBC email is backed up to
+# `<data_directory>/icbc_email_backup.json` (only on first run) and then
+# the ICBC account email is updated via the updateContactDetails API.
+emailReplace:
+  enable: true
+
 ntfy:
   enable: false
   topic: ""

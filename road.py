@@ -213,6 +213,105 @@ def get_weblogin(config):
         return None
 
 
+def update_contact_email(token, weblogin_data, new_email):
+    """Update the email on the ICBC account via updateContactDetails.
+
+    The API expects the full driver profile that webLogin returned; we just
+    swap the email field. Returns True on HTTP 200.
+    """
+    url = "https://onlinebusiness.icbc.com/deas-api/v1/web/updateContactDetails"
+    headers = generate_headers()
+    headers['Authorization'] = token
+    headers['Content-Type'] = 'application/json'
+
+    payload = dict(weblogin_data)
+    payload['email'] = new_email
+
+    try:
+        response = requests.put(url, data=json.dumps(payload), headers=headers, timeout=30)
+        if response.status_code == 200:
+            return True
+        logging.error(
+            f"updateContactDetails failed, status={response.status_code}, "
+            f"body={response.text[:200]}"
+        )
+        return False
+    except Exception as e:
+        logging.error(f"updateContactDetails exception: {e}")
+        return False
+
+
+def ensure_email_synced(config, token, weblogin_data):
+    """If emailReplace.enable is true and the configured Gmail address
+    differs from the ICBC account email, back up the original and update ICBC.
+    """
+    if not (config.get('emailReplace', {}) or {}).get('enable'):
+        return
+    desired = ((config.get('gmail', {}) or {}).get('email') or '').strip()
+    if not desired:
+        logging.warning("emailReplace enabled but gmail.email is empty, skipping email sync")
+        return
+
+    current = (weblogin_data.get('email') or '').strip()
+    if not current:
+        logging.warning("ICBC weblogin response has no 'email' field, skipping email sync")
+        return
+    if current.lower() == desired.lower():
+        return
+
+    backup_path = get_data_file_path(config, 'icbc_email_backup.json')
+    if not backup_path.exists():
+        try:
+            with open(backup_path, 'w') as f:
+                json.dump({
+                    "drvrId": weblogin_data.get('drvrId'),
+                    "licenseNumber": weblogin_data.get('licenseNumber'),
+                    "original_email": current,
+                    "backed_up_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                }, f, indent=2)
+            logging.info(f"Backed up original ICBC email '{current}' to {backup_path}")
+        except Exception as e:
+            logging.error(f"Failed to write email backup, aborting replace: {e}")
+            return
+
+    logging.info(f"Replacing ICBC account email: '{current}' -> '{desired}'")
+    if update_contact_email(token, weblogin_data, desired):
+        logging.info(f"Successfully updated ICBC account email to '{desired}'")
+        weblogin_data['email'] = desired
+    else:
+        logging.error("Failed to update ICBC account email")
+
+
+def restore_original_email(config, token, weblogin_data):
+    """After a successful booking, restore the ICBC account email from the
+    backup file written by ensure_email_synced.
+    """
+    if not (config.get('emailReplace', {}) or {}).get('enable'):
+        return
+    backup_path = get_data_file_path(config, 'icbc_email_backup.json')
+    if not backup_path.exists():
+        return
+    try:
+        with open(backup_path, 'r') as f:
+            original = (json.load(f).get('original_email') or '').strip()
+    except Exception as e:
+        logging.error(f"Failed to read email backup, skipping restore: {e}")
+        return
+    if not original:
+        logging.warning("Email backup has no original_email, skipping restore")
+        return
+
+    current = (weblogin_data.get('email') or '').strip()
+    if current.lower() == original.lower():
+        return
+
+    logging.info(f"Restoring ICBC account email: '{current}' -> '{original}'")
+    if update_contact_email(token, weblogin_data, original):
+        logging.info(f"Successfully restored ICBC account email to '{original}'")
+    else:
+        logging.error("Failed to restore ICBC account email — manual restore may be needed")
+
+
 # Get available appointments
 def get_appointments(config, token):
     appointment_url = "https://onlinebusiness.icbc.com/deas-api/v1/web/getAvailableAppointments"
@@ -1500,6 +1599,7 @@ def job(config):
     
     # Check for existing appointments from weblogin response (to avoid conflicts)
     weblogin_data = response.json()
+    ensure_email_synced(config, token, weblogin_data)
     existing_appointments = check_existing_appointments(weblogin_data)
     #if existing_appointments:
     #    logging.info(f"Found existing appointments: {existing_appointments}")
@@ -1539,7 +1639,8 @@ def job(config):
             if booking_success:
                 logging.info("✅ Automatic booking successful!")
                 save_booking_status(config, "booked", appointment_info)
-                
+                restore_original_email(config, token, weblogin_data)
+
                 # Send success notification
                 subject = "ICBC Automatic Booking Success"
                 body = f"Successfully booked appointment on {appointment_info['date']} ({appointment_info['dayOfWeek']}) at {appointment_info['time']}"

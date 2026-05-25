@@ -27,6 +27,7 @@ CONFIG_FIELDS = [
     ("gmail", "enable", "启用 Gmail", "bool", "Gmail"),
     ("gmail", "email", "Gmail 地址", "text", "Gmail"),
     ("gmail", "password", "Gmail 应用密码", "text", "Gmail"),
+    ("emailReplace", "enable", "替换 ICBC 账户邮箱", "bool", "Gmail"),
     ("autoBooking", "enable", "启用自动预约", "bool", "自动预约"),
     ("autoBooking", "timeSelectionStrategy", "时间选择策略", "text", "自动预约"),
     ("autoBooking", "exitAfterSuccess", "成功后退出", "bool", "自动预约"),
@@ -90,6 +91,7 @@ FIELD_LABELS_EN = {
     "icbc.expactTimeRange": "Time range",
     "icbc.prfDaysOfWeek": "Preferred days",
     "icbc.prfPartsOfDay": "Preferred time of day",
+    "emailReplace.enable": "Replace ICBC account email",
     "gmail.enable": "Enable Gmail",
     "gmail.email": "Gmail address",
     "gmail.password": "Gmail app password",
@@ -221,8 +223,12 @@ def write_config(changes):
             new_value = "[" + ",".join(str(x) for x in items) + "]"
         else:
             new_value = "" if value is None else str(value)
-        if configure.set_value(lines, section, key, new_value):
-            applied.append(cid)
+        if not configure.set_value(lines, section, key, new_value):
+            default = "false" if ftype == "bool" else '""'
+            configure.ensure_key(lines, section, key, default)
+            if not configure.set_value(lines, section, key, new_value):
+                continue
+        applied.append(cid)
     if applied:
         configure.write_lines(lines)
     return applied
