@@ -215,6 +215,8 @@ status and console output — no command line needed. Uses only the Python
 standard library (no extra dependencies). The server binds to
 `127.0.0.1` only.
 
+![Control panel screenshot](docs/images/control-panel.png)
+
 Note: stopping `webui.py` (Ctrl+C) also stops a running monitor. Closing
 just the browser tab does not — the server keeps running in the background.
 
