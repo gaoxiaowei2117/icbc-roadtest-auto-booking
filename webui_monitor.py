@@ -12,7 +12,14 @@ class Monitor:
     def __init__(self, command=None):
         # 用 sys.executable 而非硬编码 python3,保证 Windows 也能调用
         # -u: 让 road.py 的 stdout 不缓冲,实时输出才能及时显示
-        self._command = command or [sys.executable, "-u", "road.py", "config.yml"]
+        # 打包后 (PyInstaller frozen) 没有可执行的 road.py 源文件,
+        # 让自己以 --road 模式再启一次进程,由 app.py 分发到 road.main()
+        if command is not None:
+            self._command = command
+        elif getattr(sys, "frozen", False):
+            self._command = [sys.executable, "--road", "config.yml"]
+        else:
+            self._command = [sys.executable, "-u", "road.py", "config.yml"]
         self._proc = None
         self._lines = collections.deque(maxlen=500)
         self._lock = threading.Lock()

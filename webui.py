@@ -15,9 +15,10 @@ from urllib.parse import urlparse
 
 import configure
 import webui_state
+from resources import resource_path
 from webui_monitor import Monitor
 
-WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "webui")
+WEB_DIR = resource_path("webui")
 
 # 路径 -> (webui/ 下的文件名, Content-Type)。白名单,杜绝路径穿越。
 STATIC_FILES = {

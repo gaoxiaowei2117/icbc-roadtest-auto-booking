@@ -9,6 +9,7 @@ import json
 import os
 
 import configure
+from resources import resource_path
 
 # (section, key, label, type, group) — section None 表示顶层 key
 # type: text | bool | date | int | time_range | multi_select | single_select
@@ -55,8 +56,7 @@ def _load_pos_options():
     用 __file__ 解析路径,保证不论从哪个 cwd 启动都能找到 CSV。
     文件缺失时返回空列表(下拉就是空的,但不会崩溃)。
     """
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "icbc_pos_list.csv")
+    path = resource_path("icbc_pos_list.csv")
     opts = []
     try:
         with open(path, encoding="utf-8", newline="") as f:

@@ -13,8 +13,17 @@ import shutil
 import sys
 from pathlib import Path
 
+from resources import resource_path
+
 CONFIG_PATH = Path("config.yml")
 EXAMPLE_PATH = Path("config.example.yml")
+
+
+def _example_source() -> Path:
+    """Locate config.example.yml — CWD first, then bundled copy."""
+    if EXAMPLE_PATH.exists():
+        return EXAMPLE_PATH
+    return Path(resource_path("config.example.yml"))
 
 SECTION_HEADER_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(#.*)?$")
 
@@ -25,11 +34,12 @@ def ensure_config_exists() -> bool:
     """Return True if config.yml was just created from the template."""
     if CONFIG_PATH.exists():
         return False
-    if not EXAMPLE_PATH.exists():
+    src = _example_source()
+    if not src.exists():
         print(f"❌ Neither {CONFIG_PATH} nor {EXAMPLE_PATH} found.")
         sys.exit(1)
-    print(f"📋 {CONFIG_PATH} not found. Creating from {EXAMPLE_PATH}...")
-    shutil.copy(EXAMPLE_PATH, CONFIG_PATH)
+    print(f"📋 {CONFIG_PATH} not found. Creating from {src}...")
+    shutil.copy(src, CONFIG_PATH)
     print(f"✅ Created {CONFIG_PATH}\n")
     return True
 

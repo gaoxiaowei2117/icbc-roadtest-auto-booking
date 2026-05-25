@@ -32,3 +32,9 @@ Numb.mp3
 
 # Git worktrees
 .worktrees/
+
+# PyInstaller build artifacts
+build/
+dist/
+.venv-build/
+nohup.out
