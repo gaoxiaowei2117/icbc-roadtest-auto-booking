@@ -1,5 +1,10 @@
 # ICBC Road Test Auto-Booking
 
+[![Latest release](https://img.shields.io/github/v/release/gaoxiaowei2117/icbc-roadtest-auto-booking?label=latest&style=for-the-badge)](https://github.com/gaoxiaowei2117/icbc-roadtest-auto-booking/releases/latest)
+[![Download Windows](https://img.shields.io/badge/download-Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/gaoxiaowei2117/icbc-roadtest-auto-booking/releases/latest/download/icbc-control-panel-windows.zip)
+[![Download macOS](https://img.shields.io/badge/download-macOS-000000?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/gaoxiaowei2117/icbc-roadtest-auto-booking/releases/latest/download/icbc-control-panel-macos.zip)
+[![Download Linux](https://img.shields.io/badge/download-Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/gaoxiaowei2117/icbc-roadtest-auto-booking/releases/latest/download/icbc-control-panel-linux.zip)
+
 🚗 **An automated ICBC road test booking assistant** — monitors slot availability, books a matching slot, and exits cleanly when done.
 
 > 中文版请见 [README.zh.md](README.zh.md)

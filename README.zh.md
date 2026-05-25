@@ -1,5 +1,10 @@
 # ICBC 自动预约系统
 
+[![最新版本](https://img.shields.io/github/v/release/gaoxiaowei2117/icbc-roadtest-auto-booking?label=%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC&style=for-the-badge)](https://github.com/gaoxiaowei2117/icbc-roadtest-auto-booking/releases/latest)
+[![下载 Windows 版](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/gaoxiaowei2117/icbc-roadtest-auto-booking/releases/latest/download/icbc-control-panel-windows.zip)
+[![下载 macOS 版](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-macOS-000000?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/gaoxiaowei2117/icbc-roadtest-auto-booking/releases/latest/download/icbc-control-panel-macos.zip)
+[![下载 Linux 版](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/gaoxiaowei2117/icbc-roadtest-auto-booking/releases/latest/download/icbc-control-panel-linux.zip)
+
 🚗 **智能化ICBC路考预约助手** - 自动监控、自动预约、自动退出的一站式解决方案
 
 > English version: [README.md](README.md)
