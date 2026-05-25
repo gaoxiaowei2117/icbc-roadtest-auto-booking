@@ -47,7 +47,7 @@ jobs:
         run: |
           mkdir -p staging
           cp "dist/${{ matrix.binary }}" staging/
-          cat > "staging/读我.txt" <<'EOF'
+          cat > "staging/README.txt" <<'EOF'
           ICBC 自动预约控制面板
           ========================
 

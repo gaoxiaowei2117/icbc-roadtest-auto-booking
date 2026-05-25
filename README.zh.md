@@ -56,7 +56,7 @@
 首次运行会在 exe 同目录自动生成 `config.yml`，在"配置"页填好后切到"监控"页点"启动监控"即可。
 
 > 包未做代码签名，Windows SmartScreen 和 macOS Gatekeeper 首次运行会拦一下 —
-> 解压后看 `读我.txt` 里写的绕过步骤。
+> 解压后看 `README.txt` 里写的绕过步骤。
 > Intel Mac 与 32 位 Windows 用户暂时只能用源码方式运行。
 
 ## 🚀 从源码运行

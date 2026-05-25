@@ -58,7 +58,7 @@ in your browser. First run auto-creates `config.yml` next to the executable —
 fill it in via the **Configure** tab, then start monitoring.
 
 > The binaries are unsigned. Windows SmartScreen and macOS Gatekeeper will
-> warn on first launch — see `读我.txt` inside the zip for the bypass steps.
+> warn on first launch — see `README.txt` inside the zip for the bypass steps.
 > Intel Mac and 32-bit Windows users should run from source instead.
 
 ## 🚀 Quick Start (from source)
