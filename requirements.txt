@@ -1,5 +1,3 @@
 requests
 PyYAML
-loguru
 faker
-schedule
