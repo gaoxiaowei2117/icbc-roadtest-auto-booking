@@ -98,12 +98,22 @@ pip3 install -r requirements.txt
 
 ### 3. Create a Gmail app password
 
-1. Sign in to your Google account
-2. Go to **Account settings → Security**
-3. Enable **2-Step Verification**
-4. Under 2-Step Verification, open **App passwords**
-5. Choose **Mail** and **Other device**
-6. Copy the 16-character app password (e.g. `abcd efgh ijkl mnop`) — you will paste it into the config below
+> Why do you need this? The bot reads the ICBC verification code from your Gmail inbox. Google does not allow third-party tools to use your real account password — you must generate a one-time **16-character app password** that can only read mail (it cannot be used to sign in).
+
+**Step 1 — Turn on 2-Step Verification** (skip if already enabled)
+
+1. Open <https://myaccount.google.com/signinoptions/two-step-verification>
+2. Click **Get Started** and follow the prompts to bind your phone number for SMS codes.
+
+**Step 2 — Generate the app password**
+
+1. Open <https://myaccount.google.com/apppasswords> directly.
+   - If the page says it does not exist, 2-Step Verification is not on yet → go back to Step 1.
+2. Type any name into the **App name** field (for example `ICBC`) and click **Create**.
+3. A popup shows a **16-character password** like `abcd efgh ijkl mnop` (four groups of four, separated by spaces).
+4. **Copy it immediately** — it is shown once. Paste it into a notepad for now; you will put it into `config.yml` next.
+
+> 💡 The 16 characters work with or without the spaces.
 
 ### 4. Prepare your config
 
