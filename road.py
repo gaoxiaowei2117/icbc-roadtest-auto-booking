@@ -122,7 +122,7 @@ def play_notification_sound(config, subject, body):
 
 # Load configuration from YAML file
 def load_config(config_path):
-    with open(config_path, 'r') as file:
+    with open(config_path, 'r', encoding='utf-8') as file:
         return yaml.safe_load(file)
 
 
@@ -262,7 +262,7 @@ def ensure_email_synced(config, token, weblogin_data):
     backup_path = get_data_file_path(config, 'icbc_email_backup.json')
     if not backup_path.exists():
         try:
-            with open(backup_path, 'w') as f:
+            with open(backup_path, 'w', encoding='utf-8') as f:
                 json.dump({
                     "drvrId": weblogin_data.get('drvrId'),
                     "licenseNumber": weblogin_data.get('licenseNumber'),
@@ -292,7 +292,7 @@ def restore_original_email(config, token, weblogin_data):
     if not backup_path.exists():
         return
     try:
-        with open(backup_path, 'r') as f:
+        with open(backup_path, 'r', encoding='utf-8') as f:
             original = (json.load(f).get('original_email') or '').strip()
     except Exception as e:
         logging.error(f"Failed to read email backup, skipping restore: {e}")
@@ -350,7 +350,7 @@ def get_appointments(config, token):
 
 def save_time_to_file(config, filename, wait):
     file_path = get_data_file_path(config, filename)
-    with open(file_path, 'w') as file:
+    with open(file_path, 'w', encoding='utf-8') as file:
         now = datetime.now()
         pause_time = now + timedelta(minutes=wait)
         file.write("{}\n".format(pause_time.strftime("%Y-%m-%d %H:%M:%S")))
@@ -359,7 +359,7 @@ def save_time_to_file(config, filename, wait):
 def load_time_from_file(config, filename):
     file_path = get_data_file_path(config, filename)
     if file_path.exists():
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             line = file.readline().strip()
             return (datetime.strptime(line, "%Y-%m-%d %H:%M:%S"), line)
     return (None, "")
@@ -378,7 +378,7 @@ def is_pause_time(config, filename):
 # Save the appointments to a text file
 def save_appointments_to_txt(config, appointments, filename):
     file_path = get_data_file_path(config, filename)
-    with open(file_path, 'w') as file:
+    with open(file_path, 'w', encoding='utf-8') as file:
         for appointment in appointments:
             date = appointment["appointmentDt"]["date"]
             day_of_week = appointment["appointmentDt"]["dayOfWeek"]
@@ -393,7 +393,7 @@ def load_appointments_from_txt(config, filename):
     appointments = []
     file_path = get_data_file_path(config, filename)
     if file_path.exists():
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             for line in file:
                 date_str, time = line.strip().rsplit(' ', 1)
                 date_obj = datetime.strptime(date_str, "%Y-%m-%d %A")
@@ -514,7 +514,7 @@ def save_processed_email_ids(config, email_ids, cache_file='processed_emails.txt
     """Save processed email IDs to file"""
     try:
         file_path = get_data_file_path(config, cache_file)
-        with open(file_path, 'w') as f:
+        with open(file_path, 'w', encoding='utf-8') as f:
             for email_id in email_ids:
                 f.write(f"{email_id}\n")
     except Exception as e:
@@ -527,7 +527,7 @@ def load_processed_email_ids(config, cache_file='processed_emails.txt'):
     try:
         file_path = get_data_file_path(config, cache_file)
         if file_path.exists():
-            with open(file_path, 'r') as f:
+            with open(file_path, 'r', encoding='utf-8') as f:
                 for line in f:
                     email_id = line.strip()
                     if email_id:
@@ -1546,7 +1546,7 @@ def save_booking_status(config, status, appointment_info=None):
     
     try:
         file_path = get_data_file_path(config, 'booking_status.json')
-        with open(file_path, 'w') as f:
+        with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(status_data, f, indent=2)
         logging.info(f"Booking status saved: {status}")
     except Exception as e:
@@ -1558,7 +1558,7 @@ def load_booking_status(config):
     try:
         file_path = get_data_file_path(config, 'booking_status.json')
         if file_path.exists():
-            with open(file_path, 'r') as f:
+            with open(file_path, 'r', encoding='utf-8') as f:
                 return json.load(f)
     except Exception as e:
         logging.error(f"Failed to load booking status: {e}")
