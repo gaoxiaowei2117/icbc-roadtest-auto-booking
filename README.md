@@ -62,9 +62,12 @@ Unzip, double-click `icbc-control-panel(.exe)`, and the control panel will open
 in your browser. First run auto-creates `config.yml` next to the executable —
 fill it in via the **Configure** tab, then start monitoring.
 
-> The binaries are unsigned. Windows SmartScreen and macOS Gatekeeper will
-> warn on first launch — see `README.txt` inside the zip for the bypass steps.
-> Intel Mac and 32-bit Windows users should run from source instead.
+> The binaries are unsigned, so Windows SmartScreen and macOS Gatekeeper
+> will block them on first launch. The bundled `README.txt` walks through
+> the GUI bypass. macOS users in a hurry can just run
+> `xattr -dr com.apple.quarantine <unzipped-folder>` in Terminal — the
+> warning is gone for good. Intel Mac and 32-bit Windows users should run
+> from source instead.
 
 ## 🚀 Quick Start (from source)
 
