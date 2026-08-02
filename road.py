@@ -16,6 +16,7 @@ import ctypes
 import imaplib
 import email
 import re
+from console_encoding import configure_utf8_output
 from email.header import decode_header
 from zoneinfo import ZoneInfo
 from pathlib import Path
@@ -1739,6 +1740,7 @@ def validate_configuration(config):
 
 
 def main():
+    configure_utf8_output()
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description="ICBC Appointment Checker with Auto Booking")
     parser.add_argument('config', type=str, help='Path to the config file')

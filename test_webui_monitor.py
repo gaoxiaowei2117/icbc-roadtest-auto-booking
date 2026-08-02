@@ -9,6 +9,7 @@ LONG_CMD = [sys.executable, "-c",
             "import time,sys; print('hello-from-fake'); sys.stdout.flush(); time.sleep(30)"]
 # 一个短命子进程:打印一行后立即退出
 SHORT_CMD = [sys.executable, "-c", "print('done-fast')"]
+UNICODE_CMD = [sys.executable, "-c", "print('🚗 中文输出')"]
 
 
 def _wait_for(predicate, timeout=5.0):
@@ -44,6 +45,12 @@ class MonitorTest(unittest.TestCase):
         self.mon.start()
         self.assertTrue(
             _wait_for(lambda: any("hello-from-fake" in l for l in self.mon.console())))
+
+    def test_console_captures_unicode_output(self):
+        self.mon = Monitor(command=UNICODE_CMD)
+        self.mon.start()
+        self.assertTrue(
+            _wait_for(lambda: "🚗 中文输出" in self.mon.console()))
 
     def test_stop_terminates_process(self):
         self.mon = Monitor(command=LONG_CMD)

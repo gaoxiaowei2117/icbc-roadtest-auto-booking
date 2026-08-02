@@ -13,6 +13,7 @@ import threading
 import webbrowser
 from urllib.parse import urlparse
 
+from console_encoding import configure_utf8_output
 import configure
 import webui_state
 from resources import resource_path
@@ -132,6 +133,7 @@ def _check_dependencies():
 
 
 def main():
+    configure_utf8_output()
     configure.ensure_config_exists()
     _check_dependencies()
 
